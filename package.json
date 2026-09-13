@@ -1,28 +1,30 @@
 {
-  "name": "NeuroGram",
-  "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
-  },
-  "devDependencies": {
-    "turbo": "^2.10.12",
-    "typescript": "7.0.2"
-  },
-  "engines": {
-    "node": ">=24"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "bun",
-      "version": "1.2.10"
-    }
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+	"name": "NeuroGram",
+	"devDependencies": {
+		"@biomejs/biome": "2.5.13",
+		"turbo": "^2.10.12",
+		"typescript": "7.0.2"
+	},
+	"devEngines": {
+		"packageManager": {
+			"name": "bun",
+			"version": "1.2.10"
+		}
+	},
+	"engines": {
+		"node": ">=24"
+	},
+	"private": true,
+	"scripts": {
+		"build": "turbo run build",
+		"dev": "turbo run dev",
+		"lint": "biome lint .",
+		"format": "biome format --write .",
+		"check": "biome check .",
+		"check-types": "turbo run check-types"
+	},
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	]
 }
