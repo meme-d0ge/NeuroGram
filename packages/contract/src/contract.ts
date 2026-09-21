@@ -1,8 +1,15 @@
-import { otpSendAuth, otpVerification } from "./module/otp/endpoints.js";
+import { sendAuth, verify } from "./module/otp/endpoints.js";
+import {
+	InferContractRouterInputs,
+	InferContractRouterOutputs,
+} from "@orpc/contract";
 
 export const contract = {
 	otp: {
-		otpSendAuth,
-		otpVerification,
+		sendAuth,
+		verify,
 	},
 };
+
+export type ContractInputs = InferContractRouterInputs<typeof contract>;
+export type ContractOutputs = InferContractRouterOutputs<typeof contract>;

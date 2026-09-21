@@ -7,7 +7,7 @@ import {
 	otpVerificationTokenSchema,
 } from "./entities.js";
 
-export const otpSendAuth = baseProcedure
+export const sendAuth = baseProcedure
 	.route({ method: "POST", path: "/otp/send-auth" })
 	.input(
 		z.object({
@@ -20,7 +20,7 @@ export const otpSendAuth = baseProcedure
 		}),
 	);
 
-export const otpVerification = baseProcedure
+export const verify = baseProcedure
 	.route({ method: "POST", path: "/otp/verify" })
 	.input(
 		z.object({

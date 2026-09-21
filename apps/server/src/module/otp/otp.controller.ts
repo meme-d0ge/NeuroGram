@@ -1,21 +1,20 @@
 import { Controller } from "@nestjs/common";
 import { Implement, implement } from "@orpc/nest";
 import { contract } from "@repo/contract";
+import { OtpService } from "./otp.service.js";
 
 @Controller()
 export class OtpController {
+	constructor(private readonly otpService: OtpService) {}
+
 	@Implement(contract.otp)
 	otp() {
 		return implement(contract.otp).router({
-			otpSendAuth: implement(contract.otp.otpSendAuth).handler(
-				async ({ input }) => {
-					throw new Error(`Not implemented: send OTP to ${input.phone}`);
-				},
+			sendAuth: implement(contract.otp.sendAuth).handler(({ input }) =>
+				this.otpService.sendAuth(input),
 			),
-			otpVerification: implement(contract.otp.otpVerification).handler(
-				async ({ input }) => {
-					throw new Error(`Not implemented: verify OTP ${input.code}`);
-				},
+			verify: implement(contract.otp.verify).handler(({ input }) =>
+				this.otpService.verify(input),
 			),
 		});
 	}
