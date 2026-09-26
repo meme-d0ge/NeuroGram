@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ORPCModule, onError } from "@orpc/nest";
 import { OtpModule } from "./module/otp/otp.module.js";
+import { RedisModule } from "./redis/redis.module.js";
 
 @Module({
 	imports: [
@@ -13,6 +14,7 @@ import { OtpModule } from "./module/otp/otp.module.js";
 			eventIteratorKeepAliveInterval: 5000,
 		}),
 		OtpModule,
+		RedisModule,
 	],
 	controllers: [],
 	providers: [],
