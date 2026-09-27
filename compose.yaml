@@ -26,7 +26,7 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     # noinspection ComposeUnknownValues
     ports:
-      - "${REDIS_IP:?set REDIS_IP in .env}:${REDIS_PORT:?set REDIS_PORT in .env}:6379"
+      - "${REDIS_HOST:?set REDIS_HOST in .env}:${REDIS_PORT:?set REDIS_PORT in .env}:6379"
     volumes:
       - redis-data:/data
     healthcheck:

@@ -5,10 +5,12 @@ export const ENV = Symbol("ENV");
 
 @Global()
 @Module({
-    providers: [{
-        provide: ENV,
-        useFactory: loadEnv,
-    }],
-    exports: [ENV],
+	providers: [
+		{
+			provide: ENV,
+			useFactory: loadEnv,
+		},
+	],
+	exports: [ENV],
 })
 export class ConfigModule {}
