@@ -2,6 +2,10 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import { OpenAPIGenerator } from "@orpc/openapi";
+import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
+import { contract } from "@repo/contract";
+import { apiReference } from "@scalar/express-api-reference";
 import { AppModule } from "./app.module.js";
 import { ENV } from "./config/config.module.js";
 import type { Env } from "./config/env.js";
@@ -22,8 +26,20 @@ function loadDotenv(): void {
 
 async function bootstrap() {
 	loadDotenv();
+
 	const app = await NestFactory.create(AppModule, { abortOnError: false });
 	app.enableShutdownHooks();
+
+	const generator = new OpenAPIGenerator({
+		schemaConverters: [new ZodToJsonSchemaConverter()],
+	});
+	const spec = await generator.generate(contract, {
+		info: { title: "NeuroGram API", version: "0.0.1" },
+	});
+
+	const expressApp = app.getHttpAdapter().getInstance();
+	expressApp.use("/docs", apiReference({ content: spec }));
+
 	const env = app.get<Env>(ENV);
 	await app.listen(env.PORT);
 }
