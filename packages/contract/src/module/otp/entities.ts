@@ -1,10 +1,19 @@
 import { z } from "zod";
 
-export const otpVerificationTokenSchema = z.string({});
+export const otpVerificationTokenSchema = z
+	.string()
+	.regex(/^[0-9A-Fa-f]+$/, "Invalid hex");
 export type otpVerificationToken = z.infer<typeof otpVerificationTokenSchema>;
 
-export const otpCodeSchema = z.number().min(100000).max(999999);
+export const OTP_CODE_LENGTH = 6;
+export const otpCodeSchema = z
+	.string()
+	.length(
+		OTP_CODE_LENGTH,
+		`Code must contain exactly ${OTP_CODE_LENGTH} digits`,
+	)
+	.regex(/^[0-9]+$/, "Only digits are allowed");
 export type OtpCode = z.infer<typeof otpCodeSchema>;
 
-export const otpTokenSchema = z.string();
+export const otpTokenSchema = z.string().regex(/^[0-9A-Fa-f]+$/, "Invalid hex");
 export type OtpToken = z.infer<typeof otpTokenSchema>;

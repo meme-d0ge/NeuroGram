@@ -10,11 +10,11 @@ export class OtpController {
 	@Implement(contract.otp)
 	otp() {
 		return implement(contract.otp).router({
-			sendAuth: implement(contract.otp.sendAuth).handler(({ input }) =>
-				this.otpService.sendAuth(input),
+			sendAuth: implement(contract.otp.sendAuth).handler(({ input, errors }) =>
+				this.otpService.sendAuth(input, errors),
 			),
-			verify: implement(contract.otp.verify).handler(({ input }) =>
-				this.otpService.verify(input),
+			verifyAuth: implement(contract.otp.verifyAuth).handler(
+				({ input, errors }) => this.otpService.verifyAuth(input, errors),
 			),
 		});
 	}

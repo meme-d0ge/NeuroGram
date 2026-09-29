@@ -20,8 +20,8 @@ export const sendAuth = baseProcedure
 		}),
 	);
 
-export const verify = baseProcedure
-	.route({ method: "POST", path: "/otp/verify" })
+export const verifyAuth = baseProcedure
+	.route({ method: "POST", path: "/otp/verify-auth" })
 	.input(
 		z.object({
 			verificationToken: otpVerificationTokenSchema,
@@ -32,4 +32,7 @@ export const verify = baseProcedure
 		z.object({
 			token: otpTokenSchema,
 		}),
-	);
+	)
+	.errors({
+		UNAUTHORIZED: {},
+	});
