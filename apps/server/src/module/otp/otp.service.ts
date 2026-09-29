@@ -6,11 +6,15 @@ import { Redis } from "ioredis";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
 import type { ContractErrors } from "../../shared/contract-errors.js";
 import { parseJson } from "../../shared/safe-json-parse.js";
+import { SmsProviderService } from "../sms-provider/sms-provider.service.js";
 import { redisOtpAuthDtoSchema } from "./dto/otp-auth.dto.js";
 
 @Injectable()
 export class OtpService {
-	constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
+	constructor(
+		@Inject(REDIS_CLIENT) private readonly redis: Redis,
+		private readonly SmsProviderService: SmsProviderService,
+	) {}
 
 	private redisAuthKey(token: string) {
 		return `otp:auth:verify:${token}`;
@@ -24,7 +28,10 @@ export class OtpService {
 			"0",
 		);
 
-		//SMSProvider.send(code) // will be soon
+		this.SmsProviderService.sendMessage(
+			`Your Neurogram authentication code is: ${code}`,
+			input.phone,
+		);
 
 		const verificationToken = randomBytes(32).toString("hex");
 		const payload = JSON.stringify({

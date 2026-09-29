@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ORPCModule, onError } from "@orpc/nest";
 import { ConfigModule } from "./config/config.module.js";
 import { OtpModule } from "./module/otp/otp.module.js";
+import { SmsProviderModule } from "./module/sms-provider/sms-provider.module.js";
 import { RedisModule } from "./redis/redis.module.js";
 
 @Module({
@@ -17,6 +18,7 @@ import { RedisModule } from "./redis/redis.module.js";
 			eventIteratorKeepAliveInterval: 5000,
 		}),
 		OtpModule,
+		SmsProviderModule,
 	],
 	controllers: [],
 	providers: [],
