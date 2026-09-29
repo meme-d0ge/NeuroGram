@@ -18,12 +18,12 @@
 	},
 	"private": true,
 	"scripts": {
-		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"lint": "biome lint .",
-		"format": "biome format --write .",
+		"build": "turbo run build",
+		"check-types": "turbo run check-types",
+		"test": "turbo run test",
 		"check": "biome check .",
-		"check-types": "turbo run check-types"
+		"check:fix": "biome check --write ."
 	},
 	"workspaces": [
 		"apps/*",
