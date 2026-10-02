@@ -6,13 +6,20 @@ import {
 	AuthNextStep,
 	OTP_CODE_LENGTH,
 } from "@repo/contract/module/otp/entities";
+import { Phone, phoneSchema } from "@repo/contract/shared/entities";
 import { eq } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Redis } from "ioredis";
 import { usersTable } from "../../db/schema.js";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
 import type { ContractErrors } from "../../shared/contract-errors.js";
-import { parseJson } from "../../shared/safe-json-parse.js";
+import {
+	err,
+	Ok,
+	ok,
+	parseJson,
+	Result,
+} from "../../shared/safe-json-parse.js";
 import { SmsProviderService } from "../sms-provider/sms-provider.service.js";
 import { redisOtpAuthDtoSchema } from "./dto/otp-auth.dto.js";
 
@@ -25,8 +32,12 @@ export class OtpService {
 		private readonly db: NodePgDatabase,
 	) {}
 
-	private redisAuthKey(token: string) {
+	private redisAuthVerifyKey(token: string) {
 		return `otp:auth:verify:${token}`;
+	}
+
+	private redisAuthAccess(token: string) {
+		return `otp:auth:access:${token}`;
 	}
 	async sendAuth(
 		input: ContractInputs["otp"]["sendAuth"],
@@ -43,7 +54,7 @@ export class OtpService {
 			phone: input.phone,
 		});
 		await this.redis.set(
-			this.redisAuthKey(verificationToken),
+			this.redisAuthVerifyKey(verificationToken),
 			payload,
 			"EX",
 			300,
@@ -59,7 +70,7 @@ export class OtpService {
 		input: ContractInputs["otp"]["verifyAuth"],
 		errors: ContractErrors["otp"]["verifyAuth"],
 	): Promise<ContractOutputs["otp"]["verifyAuth"]> {
-		const key = this.redisAuthKey(input.verificationToken);
+		const key = this.redisAuthVerifyKey(input.verificationToken);
 
 		const raw = await this.redis.get(key);
 		if (raw === null) throw errors.UNAUTHORIZED();
@@ -76,7 +87,7 @@ export class OtpService {
 
 		const token = randomBytes(32).toString("hex");
 		await this.redis.set(
-			`otp:auth:access:${token}`,
+			this.redisAuthAccess(token),
 			payload.data.phone,
 			"EX",
 			900,
@@ -92,5 +103,18 @@ export class OtpService {
 		if (user === undefined) nextStep = "register";
 
 		return { token, nextStep };
+	}
+
+	async consumeAuthToken(token: string): Promise<Phone | null> {
+		const raw = await this.redis.getdel(this.redisAuthAccess(token));
+		if (raw === null) return null;
+
+		const phone = phoneSchema.safeParse(raw);
+		if (!phone.success) {
+			throw new Error(`corrupted auth token payload: ${phone.error.message}`, {
+				cause: phone.error,
+			});
+		}
+		return phone.data;
 	}
 }
