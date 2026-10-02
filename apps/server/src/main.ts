@@ -1,5 +1,3 @@
-import { existsSync } from "node:fs";
-import { dirname, resolve } from "node:path";
 import { Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { OpenAPIGenerator } from "@orpc/openapi";
@@ -9,20 +7,7 @@ import { apiReference } from "@scalar/express-api-reference";
 import { AppModule } from "./app.module.js";
 import { ENV } from "./config/config.module.js";
 import type { Env } from "./config/env.js";
-
-function loadDotenv(): void {
-	let dir = process.cwd();
-	for (let depth = 0; depth < 5; depth++) {
-		const candidate = resolve(dir, ".env");
-		if (existsSync(candidate)) {
-			process.loadEnvFile(candidate);
-			return;
-		}
-		const parent = dirname(dir);
-		if (parent === dir) return;
-		dir = parent;
-	}
-}
+import { loadDotenv } from "./config/loadDotenv.js";
 
 async function bootstrap() {
 	loadDotenv();

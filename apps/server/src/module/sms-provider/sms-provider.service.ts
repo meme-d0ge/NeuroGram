@@ -1,5 +1,5 @@
 import { Phone } from "@repo/contract/shared/entities";
 
 export abstract class SmsProviderService {
-	abstract sendMessage(message: string, phone: Phone): void;
+	abstract sendMessage(message: string, phone: Phone): Promise<void>;
 }

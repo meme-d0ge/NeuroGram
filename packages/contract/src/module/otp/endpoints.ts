@@ -2,6 +2,7 @@ import { z } from "zod";
 import { phoneSchema } from "../../shared/entities.js";
 import { baseProcedure } from "../../shared/procedures.js";
 import {
+	authNextStepSchema,
 	otpCodeSchema,
 	otpTokenSchema,
 	otpVerificationTokenSchema,
@@ -31,6 +32,7 @@ export const verifyAuth = baseProcedure
 	.output(
 		z.object({
 			token: otpTokenSchema,
+			nextStep: authNextStepSchema,
 		}),
 	)
 	.errors({

@@ -17,6 +17,9 @@
 			}
 		}
 	],
+	"files": {
+		"includes": ["**", "!apps/server/drizzle"]
+	},
 	"javascript": {
 		"parser": {
 			"unsafeParameterDecoratorsEnabled": true

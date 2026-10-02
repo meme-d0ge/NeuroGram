@@ -17,3 +17,6 @@ export type OtpCode = z.infer<typeof otpCodeSchema>;
 
 export const otpTokenSchema = z.string().regex(/^[0-9A-Fa-f]+$/, "Invalid hex");
 export type OtpToken = z.infer<typeof otpTokenSchema>;
+
+export const authNextStepSchema = z.enum(["login", "register"]);
+export type AuthNextStep = z.infer<typeof authNextStepSchema>;

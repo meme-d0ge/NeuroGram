@@ -5,7 +5,7 @@ import { SmsProviderService } from "./sms-provider.service.js";
 @Injectable()
 export class ProductionSmsProvider extends SmsProviderService {
 	private readonly logger = new Logger(ProductionSmsProvider.name);
-	sendMessage(_message: string, _phone: Phone) {
+	async sendMessage(_message: string, _phone: Phone) {
 		this.logger.log("SMS provider is not implemented yet");
 	}
 }

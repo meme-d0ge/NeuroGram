@@ -10,8 +10,8 @@ import { SmsProviderService } from "./sms-provider.service.js";
 		{
 			provide: SmsProviderService,
 			useFactory: (env: Env) => {
-				if (env.NODE_ENV === "development") return new DevelopSmsProvider();
-				else return new ProductionSmsProvider();
+				if (env.NODE_ENV === "production") return new ProductionSmsProvider();
+				else return new DevelopSmsProvider();
 			},
 			inject: [ENV],
 		},

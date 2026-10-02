@@ -1,8 +1,15 @@
 import { randomBytes, randomInt } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
+import { InjectDrizzle } from "@nestjs/drizzle";
 import type { ContractInputs, ContractOutputs } from "@repo/contract";
-import { OTP_CODE_LENGTH } from "@repo/contract/module/otp/entities";
+import {
+	AuthNextStep,
+	OTP_CODE_LENGTH,
+} from "@repo/contract/module/otp/entities";
+import { eq } from "drizzle-orm";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Redis } from "ioredis";
+import { usersTable } from "../../db/schema.js";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
 import type { ContractErrors } from "../../shared/contract-errors.js";
 import { parseJson } from "../../shared/safe-json-parse.js";
@@ -14,6 +21,8 @@ export class OtpService {
 	constructor(
 		@Inject(REDIS_CLIENT) private readonly redis: Redis,
 		private readonly SmsProviderService: SmsProviderService,
+		@InjectDrizzle()
+		private readonly db: NodePgDatabase,
 	) {}
 
 	private redisAuthKey(token: string) {
@@ -28,11 +37,6 @@ export class OtpService {
 			"0",
 		);
 
-		this.SmsProviderService.sendMessage(
-			`Your Neurogram authentication code is: ${code}`,
-			input.phone,
-		);
-
 		const verificationToken = randomBytes(32).toString("hex");
 		const payload = JSON.stringify({
 			code: code,
@@ -43,6 +47,10 @@ export class OtpService {
 			payload,
 			"EX",
 			300,
+		);
+		await this.SmsProviderService.sendMessage(
+			`Your Neurogram authentication code is: ${code}`,
+			input.phone,
 		);
 
 		return { verificationToken: verificationToken };
@@ -73,6 +81,16 @@ export class OtpService {
 			"EX",
 			900,
 		);
-		return { token };
+
+		let nextStep: AuthNextStep = "login";
+		const [user] = await this.db
+			.select({
+				id: usersTable.id,
+			})
+			.from(usersTable)
+			.where(eq(usersTable.phone, payload.data.phone));
+		if (user === undefined) nextStep = "register";
+
+		return { token, nextStep };
 	}
 }

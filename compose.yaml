@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: ${DB_NAME:?set DB_NAME in .env}
     # noinspection ComposeUnknownValues
     ports:
-      - "${DB_IP:?set DB_IP in .env}:${DB_PORT:?set DB_PORT in .env}:5432"
+      - "${DB_HOST:?set DB_HOST in .env}:${DB_PORT:?set DB_PORT in .env}:5432"
     volumes:
       - pg-data:/var/lib/postgresql
     healthcheck:
