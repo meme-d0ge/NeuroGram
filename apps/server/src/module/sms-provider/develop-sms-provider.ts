@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Phone } from "@repo/contract/shared/entities";
+import { Phone } from "@repo/contract/shared/entities/phone";
 import { SmsProviderService } from "./sms-provider.service.js";
 
 @Injectable()

@@ -6,20 +6,14 @@ import {
 	AuthNextStep,
 	OTP_CODE_LENGTH,
 } from "@repo/contract/module/otp/entities";
-import { Phone, phoneSchema } from "@repo/contract/shared/entities";
+import { Phone, phoneSchema } from "@repo/contract/shared/entities/phone";
 import { eq } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Redis } from "ioredis";
 import { usersTable } from "../../db/schema.js";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
 import type { ContractErrors } from "../../shared/contract-errors.js";
-import {
-	err,
-	Ok,
-	ok,
-	parseJson,
-	Result,
-} from "../../shared/safe-json-parse.js";
+import { parseJson } from "../../shared/safe-json-parse.js";
 import { SmsProviderService } from "../sms-provider/sms-provider.service.js";
 import { redisOtpAuthDtoSchema } from "./dto/otp-auth.dto.js";
 

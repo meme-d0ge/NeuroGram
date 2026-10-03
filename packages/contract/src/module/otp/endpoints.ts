@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { phoneSchema } from "../../shared/entities.js";
+import { phoneSchema } from "../../shared/entities/phone.js";
 import { baseProcedure } from "../../shared/procedures.js";
 import {
 	authNextStepSchema,

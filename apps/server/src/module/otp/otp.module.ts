@@ -7,5 +7,6 @@ import { OtpService } from "./otp.service.js";
 	controllers: [OtpController],
 	providers: [OtpService],
 	imports: [SmsProviderModule],
+	exports: [OtpService],
 })
 export class OtpModule {}
