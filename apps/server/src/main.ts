@@ -15,17 +15,18 @@ async function bootstrap() {
 	const app = await NestFactory.create(AppModule, { abortOnError: false });
 	app.enableShutdownHooks();
 
-	const generator = new OpenAPIGenerator({
-		schemaConverters: [new ZodToJsonSchemaConverter()],
-	});
-	const spec = await generator.generate(contract, {
-		info: { title: "NeuroGram API", version: "0.0.1" },
-	});
-
-	const expressApp = app.getHttpAdapter().getInstance();
-	expressApp.use("/docs", apiReference({ content: spec }));
-
 	const env = app.get<Env>(ENV);
+	if (env.NODE_ENV !== "production") {
+		const generator = new OpenAPIGenerator({
+			schemaConverters: [new ZodToJsonSchemaConverter()],
+		});
+		const spec = await generator.generate(contract, {
+			info: { title: "NeuroGram API", version: "0.0.1" },
+		});
+		const expressApp = app.getHttpAdapter().getInstance();
+		expressApp.use("/docs", apiReference({ content: spec }));
+	}
+
 	await app.listen(env.PORT);
 }
 
