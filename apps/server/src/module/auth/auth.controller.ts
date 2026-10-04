@@ -21,7 +21,7 @@ export class AuthController {
 						httpOnly: true,
 						secure: true,
 						sameSite: "lax",
-						maxAge: 60 * 60 * 24 * 365 * 10,
+						maxAge: 60 * 60 * 24 * 400,
 					});
 
 					return user;
@@ -37,7 +37,7 @@ export class AuthController {
 						httpOnly: true,
 						secure: true,
 						sameSite: "lax",
-						maxAge: 60 * 60 * 24 * 365 * 10,
+						maxAge: 60 * 60 * 24 * 400,
 					});
 
 					return user;
