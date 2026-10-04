@@ -7,6 +7,7 @@ import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { usersTable } from "../../db/schema.js";
 import type { ContractErrors } from "../../shared/contract-errors.js";
 import { OtpService } from "../otp/otp.service.js";
+import { toSelfUser } from "../user/user.mapper.js";
 
 @Injectable()
 export class AuthService {
@@ -24,17 +25,14 @@ export class AuthService {
 		);
 		if (phone === null) throw errors.UNAUTHORIZED();
 		const [user] = await this.db
-			.select({
-				firstName: usersTable.firstName,
-				lastName: usersTable.lastName,
-				phone: usersTable.phone,
-			})
+			.select()
 			.from(usersTable)
 			.where(eq(usersTable.phone, phone));
 		if (user === undefined) throw errors.NOT_FOUND();
 
+		const selfUser = toSelfUser(user);
 		return {
-			...user,
+			...selfUser,
 			sessionId: "test_sessionId",
 		};
 	}
@@ -47,27 +45,18 @@ export class AuthService {
 		);
 		if (phone === null) throw errors.UNAUTHORIZED();
 
-		const [user] = await this.db
-			.select({
-				id: usersTable.id,
-			})
-			.from(usersTable)
-			.where(eq(usersTable.phone, phone));
-
-		if (user !== undefined) throw errors.CONFLICT();
-
-		const newUser = {
+		const newUserValues = {
 			phone: phone,
 			firstName: input.firstName,
 			lastName: input.lastName,
 		};
 		const [created] = await this.db
 			.insert(usersTable)
-			.values(newUser)
+			.values(newUserValues)
 			.onConflictDoNothing({ target: usersTable.phone })
 			.returning();
 		if (created === undefined) throw errors.CONFLICT();
-
+		const newUser = toSelfUser(created);
 		return {
 			...newUser,
 			sessionId: "test_sessionId",

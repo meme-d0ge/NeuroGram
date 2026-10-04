@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { phoneSchema } from "../../shared/entities/phone.js";
 import {
+	selfUserSchema,
 	userFirstNameSchema,
 	userLastNameSchema,
 } from "../../shared/entities/user.js";
@@ -14,13 +14,7 @@ export const login = baseProcedure
 			token: otpTokenSchema,
 		}),
 	)
-	.output(
-		z.object({
-			phone: phoneSchema,
-			firstName: userFirstNameSchema,
-			lastName: userLastNameSchema,
-		}),
-	)
+	.output(selfUserSchema)
 	.errors({
 		UNAUTHORIZED: {},
 		NOT_FOUND: {},
@@ -35,13 +29,7 @@ export const register = baseProcedure
 			lastName: userLastNameSchema,
 		}),
 	)
-	.output(
-		z.object({
-			phone: phoneSchema,
-			firstName: userFirstNameSchema,
-			lastName: userLastNameSchema,
-		}),
-	)
+	.output(selfUserSchema)
 	.errors({
 		UNAUTHORIZED: {},
 		CONFLICT: {},
