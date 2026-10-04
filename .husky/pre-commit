@@ -1,0 +1,4 @@
+bun run check
+bun run check-types
+bun run check:fix
+bun run test
