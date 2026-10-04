@@ -1,14 +1,5 @@
 import { z } from "zod";
-export type Ok<T> = { success: true; data: T; error?: never };
-export type Err<E> = { success: false; data?: never; error: E };
-export type Result<T, E = Error> = Ok<T> | Err<E>;
-
-export function ok<T>(data: T): Ok<T> {
-	return { success: true, data };
-}
-export function err<E>(error: E): Err<E> {
-	return { success: false, error };
-}
+import { err, ok, Result } from "./result.js";
 export function safeJsonParse(raw: string): Result<unknown> {
 	try {
 		return ok(JSON.parse(raw) as unknown);
@@ -20,7 +11,6 @@ export function safeJsonParse(raw: string): Result<unknown> {
 		);
 	}
 }
-
 export function parseJson<S extends z.ZodType>(
 	raw: string,
 	schema: S,

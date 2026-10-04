@@ -1,114 +1,77 @@
 import { randomBytes, randomInt } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
-import { InjectDrizzle } from "@nestjs/drizzle";
-import type { ContractInputs, ContractOutputs } from "@repo/contract";
 import {
-	AuthNextStep,
 	OTP_CODE_LENGTH,
+	OtpCode,
+	OtpToken,
 } from "@repo/contract/module/otp/entities";
-import { Phone, phoneSchema } from "@repo/contract/shared/entities/phone";
-import { eq } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { Phone } from "@repo/contract/shared/entities/phone";
 import { Redis } from "ioredis";
-import { usersTable } from "../../db/schema.js";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
-import type { ContractErrors } from "../../shared/contract-errors.js";
+import { err, ok, Result } from "../../shared/result.js";
 import { parseJson } from "../../shared/safe-json-parse.js";
 import { SmsProviderService } from "../sms-provider/sms-provider.service.js";
-import { redisOtpAuthDtoSchema } from "./dto/otp-auth.dto.js";
+import { redisOtpDtoSchema } from "./dto/otp.dto.js";
+import { OTP_PURPOSES, OtpPurpose } from "./otp.purposes.js";
+
+export type OtpIssueError = { type: "COOLDOWN" };
+export type OtpVerifyError =
+	| { type: "INVALID_CODE"; attemptsLeft: number }
+	| { type: "EXPIRED" }
+	| { type: "TOO_MANY_ATTEMPTS" };
 
 @Injectable()
 export class OtpService {
 	constructor(
 		@Inject(REDIS_CLIENT) private readonly redis: Redis,
-		private readonly SmsProviderService: SmsProviderService,
-		@InjectDrizzle()
-		private readonly db: NodePgDatabase,
+		private readonly smsProviderService: SmsProviderService,
 	) {}
 
-	private redisAuthVerifyKey(token: string) {
-		return `otp:auth:verify:${token}`;
+	private redisKey(token: string, name: OtpPurpose) {
+		return `otp:${name}:${token}`;
 	}
 
-	private redisAuthAccess(token: string) {
-		return `otp:auth:access:${token}`;
-	}
-	async sendAuth(
-		input: ContractInputs["otp"]["sendAuth"],
-		_errors: ContractErrors["otp"]["sendAuth"],
-	): Promise<ContractOutputs["otp"]["sendAuth"]> {
+	async issue(
+		purpose: OtpPurpose,
+		phone: Phone,
+	): Promise<Result<OtpToken, OtpIssueError>> {
 		const code = String(randomInt(0, 10 ** OTP_CODE_LENGTH)).padStart(
 			OTP_CODE_LENGTH,
 			"0",
 		);
-
-		const verificationToken = randomBytes(32).toString("hex");
-		const payload = JSON.stringify({
-			code: code,
-			phone: input.phone,
-		});
-		await this.redis.set(
-			this.redisAuthVerifyKey(verificationToken),
-			payload,
-			"EX",
-			300,
-		);
-		await this.SmsProviderService.sendMessage(
-			`Your Neurogram authentication code is: ${code}`,
-			input.phone,
-		);
-
-		return { verificationToken: verificationToken };
-	}
-	async verifyAuth(
-		input: ContractInputs["otp"]["verifyAuth"],
-		errors: ContractErrors["otp"]["verifyAuth"],
-	): Promise<ContractOutputs["otp"]["verifyAuth"]> {
-		const key = this.redisAuthVerifyKey(input.verificationToken);
-
-		const raw = await this.redis.get(key);
-		if (raw === null) throw errors.UNAUTHORIZED();
-
-		const payload = parseJson(raw, redisOtpAuthDtoSchema);
-		if (!payload.success) {
-			throw new Error(`corrupted OTP payload: ${payload.error.message}`, {
-				cause: payload.error,
-			});
-		}
-
-		if (input.code !== payload.data.code) throw errors.UNAUTHORIZED();
-		if ((await this.redis.del(key)) === 0) throw errors.UNAUTHORIZED();
-
 		const token = randomBytes(32).toString("hex");
 		await this.redis.set(
-			this.redisAuthAccess(token),
-			payload.data.phone,
+			this.redisKey(token, purpose),
+			JSON.stringify({
+				phone: phone,
+				code: code,
+			}),
 			"EX",
-			900,
+			OTP_PURPOSES[purpose].ttlSeconds,
 		);
-
-		let nextStep: AuthNextStep = "login";
-		const [user] = await this.db
-			.select({
-				id: usersTable.id,
-			})
-			.from(usersTable)
-			.where(eq(usersTable.phone, payload.data.phone));
-		if (user === undefined) nextStep = "register";
-
-		return { token, nextStep };
+		await this.smsProviderService.sendMessage(
+			OTP_PURPOSES[purpose].message(code),
+			phone,
+		);
+		return ok(token);
 	}
-
-	async consumeAuthToken(token: string): Promise<Phone | null> {
-		const raw = await this.redis.getdel(this.redisAuthAccess(token));
-		if (raw === null) return null;
-
-		const phone = phoneSchema.safeParse(raw);
-		if (!phone.success) {
-			throw new Error(`corrupted auth token payload: ${phone.error.message}`, {
-				cause: phone.error,
+	async verify(
+		purpose: OtpPurpose,
+		token: OtpToken,
+		code: OtpCode,
+	): Promise<Result<Phone, OtpVerifyError>> {
+		const key = this.redisKey(token, purpose);
+		const data = await this.redis.get(key);
+		if (data === null) return err({ type: "EXPIRED" });
+		const result = parseJson(data, redisOtpDtoSchema);
+		if (!result.success) {
+			throw new Error(`corrupted OTP payload (purpose: ${purpose})`, {
+				cause: result.error,
 			});
 		}
-		return phone.data;
+		if (result.data.code !== code)
+			return err({ type: "INVALID_CODE", attemptsLeft: 10 }); //TODO
+		if ((await this.redis.del(key)) === 0) return err({ type: "EXPIRED" });
+		return ok(result.data.phone);
 	}
 }

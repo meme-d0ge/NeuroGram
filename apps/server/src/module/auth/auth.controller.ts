@@ -7,29 +7,33 @@ import { AuthService } from "./auth.service.js";
 @Controller()
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
-
 	@Implement(contract.auth)
 	auth() {
 		return implement(contract.auth).router({
-			login: implement(contract.auth.login).handler(
+			sendCode: implement(contract.auth.sendCode).handler(
+				async ({ input, errors }) =>
+					await this.authService.sendCode(input, errors),
+			),
+			signIn: implement(contract.auth.signIn).handler(
 				async ({ input, errors, context }) => {
-					const { sessionId, ...user } = await this.authService.login(
-						input,
-						errors,
-					);
-					setCookie(context.resHeaders, "session", sessionId, {
-						httpOnly: true,
-						secure: true,
-						sameSite: "lax",
-						maxAge: 60 * 60 * 24 * 400,
-					});
+					const result = await this.authService.signIn(input, errors);
+					if (result.status === "authorized") {
+						const { sessionId, ...data } = result;
+						setCookie(context.resHeaders, "session", sessionId, {
+							httpOnly: true,
+							secure: true,
+							sameSite: "lax",
+							maxAge: 60 * 60 * 24 * 400,
+						});
+						return data;
+					}
 
-					return user;
+					return result;
 				},
 			),
-			register: implement(contract.auth.register).handler(
+			signUp: implement(contract.auth.signUp).handler(
 				async ({ input, errors, context }) => {
-					const { sessionId, ...user } = await this.authService.register(
+					const { sessionId, ...data } = await this.authService.signUp(
 						input,
 						errors,
 					);
@@ -40,7 +44,7 @@ export class AuthController {
 						maxAge: 60 * 60 * 24 * 400,
 					});
 
-					return user;
+					return data;
 				},
 			),
 		});

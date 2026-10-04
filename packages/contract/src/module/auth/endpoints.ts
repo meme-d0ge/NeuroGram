@@ -1,35 +1,65 @@
 import { z } from "zod";
+import { phoneSchema } from "../../shared/entities/phone.js";
 import {
 	selfUserSchema,
 	userFirstNameSchema,
 	userLastNameSchema,
 } from "../../shared/entities/user.js";
 import { baseProcedure } from "../../shared/procedures.js";
-import { otpTokenSchema } from "../otp/entities.js";
+import { otpCodeSchema, otpTokenSchema } from "../otp/entities.js";
+import { signUpTokenSchema } from "./entities.js";
 
-export const login = baseProcedure
-	.route({ method: "POST", path: "/auth/login" })
+export const sendCode = baseProcedure
+	.route({ method: "POST", path: "/auth/send-code" })
 	.input(
 		z.object({
-			token: otpTokenSchema,
+			phone: phoneSchema,
 		}),
 	)
-	.output(selfUserSchema)
-	.errors({
-		UNAUTHORIZED: {},
-		NOT_FOUND: {},
-	});
+	.output(
+		z.object({
+			otpToken: otpTokenSchema,
+		}),
+	);
 
-export const register = baseProcedure
-	.route({ method: "POST", path: "/auth/register" })
+export const signIn = baseProcedure
+	.route({ method: "POST", path: "/auth/sign-in" })
 	.input(
 		z.object({
-			token: otpTokenSchema,
+			otpToken: otpTokenSchema,
+			otpCode: otpCodeSchema,
+		}),
+	)
+	.output(
+		z.discriminatedUnion("status", [
+			z.object({
+				status: z.literal("authorized"),
+				user: selfUserSchema,
+			}),
+			z.object({
+				status: z.literal("signUpRequired"),
+				signUpToken: signUpTokenSchema,
+			}),
+		]),
+	)
+	.errors({
+		UNAUTHORIZED: {},
+	});
+
+export const signUp = baseProcedure
+	.route({ method: "POST", path: "/auth/sign-up" })
+	.input(
+		z.object({
+			signUpToken: signUpTokenSchema,
 			firstName: userFirstNameSchema,
 			lastName: userLastNameSchema,
 		}),
 	)
-	.output(selfUserSchema)
+	.output(
+		z.object({
+			user: selfUserSchema,
+		}),
+	)
 	.errors({
 		UNAUTHORIZED: {},
 		CONFLICT: {},
