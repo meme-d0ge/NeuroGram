@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Logger, Module } from "@nestjs/common";
 import { ORPCModule, onError } from "@orpc/nest";
 import { ResponseHeadersPlugin } from "@orpc/server/plugins";
 import { ConfigModule } from "./config/config.module.js";
@@ -15,7 +15,7 @@ import { RedisModule } from "./redis/redis.module.js";
 		ORPCModule.forRoot({
 			interceptors: [
 				onError((error) => {
-					console.error(error);
+					Logger.error(error);
 				}),
 			],
 			context: {},
