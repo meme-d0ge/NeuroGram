@@ -18,6 +18,7 @@ import { otpScripts } from "./otp.scripts.js";
 export type OtpIssueError = { type: "COOLDOWN"; retryAfter: number };
 export type OtpVerifyError =
 	| { type: "INVALID_CODE"; attemptsLeft: number }
+	| { type: "ATTEMPTS_EXCEEDED" }
 	| { type: "EXPIRED" };
 @Injectable()
 export class OtpService implements OnModuleInit {
@@ -110,10 +111,16 @@ export class OtpService implements OnModuleInit {
 			});
 		}
 		if (result.data.code !== code)
-			return err({
-				type: "INVALID_CODE",
-				attemptsLeft: OTP_PURPOSES[purpose].maxAttempts - attemptCount,
-			});
+			if (OTP_PURPOSES[purpose].maxAttempts - attemptCount > 0) {
+				return err({
+					type: "INVALID_CODE",
+					attemptsLeft: OTP_PURPOSES[purpose].maxAttempts - attemptCount,
+				});
+			} else {
+				return err({
+					type: "ATTEMPTS_EXCEEDED",
+				});
+			}
 		if ((await this.redis.del(tokenKey)) === 0) return err({ type: "EXPIRED" });
 		return ok(result.data.phone);
 	}

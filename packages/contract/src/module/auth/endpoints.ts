@@ -57,7 +57,12 @@ export const signIn = baseProcedure
 			}),
 			status: 400,
 		},
-		UNAUTHORIZED: {},
+		OTP_EXPIRED: {
+			status: 400,
+		},
+		OTP_ATTEMPTS_EXCEEDED: {
+			status: 429,
+		},
 	});
 
 export const signUp = baseProcedure
@@ -75,6 +80,10 @@ export const signUp = baseProcedure
 		}),
 	)
 	.errors({
-		UNAUTHORIZED: {},
-		CONFLICT: {},
+		SIGN_UP_EXPIRED: {
+			status: 400,
+		},
+		PHONE_ALREADY_REGISTERED: {
+			status: 409,
+		},
 	});

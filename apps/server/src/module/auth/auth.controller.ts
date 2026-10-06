@@ -41,7 +41,9 @@ export class AuthController {
 									},
 								});
 							case "EXPIRED":
-								throw errors.UNAUTHORIZED();
+								throw errors.OTP_EXPIRED();
+							case "ATTEMPTS_EXCEEDED":
+								throw errors.OTP_ATTEMPTS_EXCEEDED();
 						}
 					}
 					if (result.data.status === "authorized") {
@@ -68,9 +70,9 @@ export class AuthController {
 					if (!result.success) {
 						switch (result.error.type) {
 							case "SIGN_UP_TOKEN_EXPIRED":
-								throw errors.UNAUTHORIZED();
+								throw errors.SIGN_UP_EXPIRED();
 							case "USER_EXISTS":
-								throw errors.CONFLICT();
+								throw errors.PHONE_ALREADY_REGISTERED();
 						}
 					}
 
