@@ -1,18 +1,37 @@
 import { randomBytes } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectDrizzle } from "@nestjs/drizzle";
-import type { ContractInputs, ContractOutputs } from "@repo/contract";
-import { phoneSchema } from "@repo/contract/shared/entities/phone";
+import { SignUpToken } from "@repo/contract/module/auth/entities";
+import { OtpCode, OtpToken } from "@repo/contract/module/otp/entities";
+import { Phone, phoneSchema } from "@repo/contract/shared/entities/phone";
+import {
+	SelfUser,
+	UserFirstName,
+	UserLastName,
+} from "@repo/contract/shared/entities/user";
 import { eq } from "drizzle-orm";
 import { Redis } from "ioredis";
 import type { Database } from "../../db/relations.js";
 import { usersTable } from "../../db/schema.js";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
-import type { ContractErrors } from "../../shared/contract-errors.js";
-import { OtpService } from "../otp/otp.service.js";
+import { err, ok, Result } from "../../shared/result.js";
+import {
+	OtpIssueError,
+	OtpService,
+	OtpVerifyError,
+} from "../otp/otp.service.js";
 import { toSelfUser } from "../user/user.mapper.js";
 
 const SIGN_UP_TOKEN_TTL_SECONDS = 900;
+
+export type SignInResult =
+	| { status: "authorized"; user: SelfUser; sessionId: string }
+	| { status: "signUpRequired"; signUpToken: SignUpToken };
+
+export type SignUpResult = { user: SelfUser; sessionId: string };
+export type SignUpError =
+	| { type: "SIGN_UP_TOKEN_EXPIRED" }
+	| { type: "USER_EXISTS" };
 
 @Injectable()
 export class AuthService {
@@ -26,101 +45,64 @@ export class AuthService {
 		return `auth:signup:${token}`;
 	}
 
-	async sendCode(
-		input: ContractInputs["auth"]["sendCode"],
-		errors: ContractErrors["auth"]["sendCode"],
-	): Promise<ContractOutputs["auth"]["sendCode"]> {
-		const result = await this.otpService.issue("auth", input.phone);
-		if (!result.success) {
-			switch (result.error.type) {
-				case "COOLDOWN":
-					throw errors.OTP_COOLDOWN({
-						data: {
-							retryAfter: result.error.retryAfter,
-						},
-					});
-			}
-		}
-		return {
-			otpToken: result.data,
-		};
+	async sendCode(phone: Phone): Promise<Result<OtpToken, OtpIssueError>> {
+		return this.otpService.issue("auth", phone);
 	}
 
 	async signIn(
-		input: ContractInputs["auth"]["signIn"],
-		errors: ContractErrors["auth"]["signIn"],
-	): Promise<
-		| (Extract<ContractOutputs["auth"]["signIn"], { status: "authorized" }> & {
-				sessionId: string;
-		  })
-		| Extract<ContractOutputs["auth"]["signIn"], { status: "signUpRequired" }>
-	> {
-		const result = await this.otpService.verify(
-			"auth",
-			input.otpToken,
-			input.otpCode,
-		);
-
-		if (!result.success) {
-			switch (result.error.type) {
-				case "INVALID_CODE":
-					throw errors.INVALID_CODE({
-						data: {
-							attemptsLeft: result.error.attemptsLeft,
-						},
-					});
-				case "EXPIRED":
-					throw errors.UNAUTHORIZED();
-			}
-		}
-		const [user] = await this.db
+		otpToken: OtpToken,
+		otpCode: OtpCode,
+	): Promise<Result<SignInResult, OtpVerifyError>> {
+		const result = await this.otpService.verify("auth", otpToken, otpCode);
+		if (!result.success) return err(result.error);
+		const user = await this.db
 			.select()
 			.from(usersTable)
-			.where(eq(usersTable.phone, result.data));
+			.where(eq(usersTable.phone, result.data))
+			.then((res) => res.at(0));
 		if (user === undefined) {
 			const signUpToken = randomBytes(32).toString("hex");
 			const key = this.redisSignUpKey(signUpToken);
 			await this.redis.set(key, result.data, "EX", SIGN_UP_TOKEN_TTL_SECONDS);
-			return {
+			return ok({
 				status: "signUpRequired",
 				signUpToken: signUpToken,
-			};
+			});
 		}
 
-		const selfUser = toSelfUser(user);
-		return {
+		return ok({
 			status: "authorized",
-			user: selfUser,
+			user: toSelfUser(user),
 			sessionId: "test_sessionId",
-		};
+		});
 	}
 
 	async signUp(
-		input: ContractInputs["auth"]["signUp"],
-		errors: ContractErrors["auth"]["signUp"],
-	): Promise<ContractOutputs["auth"]["signUp"] & { sessionId: string }> {
-		const value = await this.redis.getdel(
-			this.redisSignUpKey(input.signUpToken),
-		);
-		if (value === null) throw errors.UNAUTHORIZED();
+		signUpToken: SignUpToken,
+		firstName: UserFirstName,
+		lastName: UserLastName,
+	): Promise<Result<SignUpResult, SignUpError>> {
+		const value = await this.redis.getdel(this.redisSignUpKey(signUpToken));
+		if (value === null) return err({ type: "SIGN_UP_TOKEN_EXPIRED" });
 		const phone = phoneSchema.parse(value);
 
 		const newUserValues = {
 			phone: phone,
-			firstName: input.firstName,
-			lastName: input.lastName,
+			firstName: firstName,
+			lastName: lastName,
 		};
-		const [created] = await this.db
+		const created = await this.db
 			.insert(usersTable)
 			.values(newUserValues)
 			.onConflictDoNothing({ target: usersTable.phone })
-			.returning();
-		if (created === undefined) throw errors.CONFLICT();
+			.returning()
+			.then((res) => res.at(0));
+		if (created === undefined) return err({ type: "USER_EXISTS" });
 
 		const newUser = toSelfUser(created);
-		return {
+		return ok({
 			user: newUser,
 			sessionId: "test_sessionId",
-		};
+		});
 	}
 }

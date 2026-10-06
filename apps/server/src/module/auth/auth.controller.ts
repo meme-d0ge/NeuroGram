@@ -11,14 +11,41 @@ export class AuthController {
 	auth() {
 		return implement(contract.auth).router({
 			sendCode: implement(contract.auth.sendCode).handler(
-				async ({ input, errors }) =>
-					await this.authService.sendCode(input, errors),
+				async ({ input, errors }) => {
+					const result = await this.authService.sendCode(input.phone);
+					if (!result.success) {
+						switch (result.error.type) {
+							case "COOLDOWN":
+								throw errors.OTP_COOLDOWN({
+									data: {
+										retryAfter: result.error.retryAfter,
+									},
+								});
+						}
+					}
+					return { otpToken: result.data };
+				},
 			),
 			signIn: implement(contract.auth.signIn).handler(
 				async ({ input, errors, context }) => {
-					const result = await this.authService.signIn(input, errors);
-					if (result.status === "authorized") {
-						const { sessionId, ...data } = result;
+					const result = await this.authService.signIn(
+						input.otpToken,
+						input.otpCode,
+					);
+					if (!result.success) {
+						switch (result.error.type) {
+							case "INVALID_CODE":
+								throw errors.INVALID_CODE({
+									data: {
+										attemptsLeft: result.error.attemptsLeft,
+									},
+								});
+							case "EXPIRED":
+								throw errors.UNAUTHORIZED();
+						}
+					}
+					if (result.data.status === "authorized") {
+						const { sessionId, ...data } = result.data;
 						setCookie(context.resHeaders, "session", sessionId, {
 							httpOnly: true,
 							secure: true,
@@ -28,15 +55,26 @@ export class AuthController {
 						return data;
 					}
 
-					return result;
+					return result.data;
 				},
 			),
 			signUp: implement(contract.auth.signUp).handler(
 				async ({ input, errors, context }) => {
-					const { sessionId, ...data } = await this.authService.signUp(
-						input,
-						errors,
+					const result = await this.authService.signUp(
+						input.signUpToken,
+						input.firstName,
+						input.lastName,
 					);
+					if (!result.success) {
+						switch (result.error.type) {
+							case "SIGN_UP_TOKEN_EXPIRED":
+								throw errors.UNAUTHORIZED();
+							case "USER_EXISTS":
+								throw errors.CONFLICT();
+						}
+					}
+
+					const { sessionId, ...data } = result.data;
 					setCookie(context.resHeaders, "session", sessionId, {
 						httpOnly: true,
 						secure: true,
