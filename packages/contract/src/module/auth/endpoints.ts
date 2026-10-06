@@ -20,7 +20,15 @@ export const sendCode = baseProcedure
 		z.object({
 			otpToken: otpTokenSchema,
 		}),
-	);
+	)
+	.errors({
+		OTP_COOLDOWN: {
+			data: z.object({
+				retryAfter: z.number(),
+			}),
+			status: 429,
+		},
+	});
 
 export const signIn = baseProcedure
 	.route({ method: "POST", path: "/auth/sign-in" })
@@ -43,6 +51,12 @@ export const signIn = baseProcedure
 		]),
 	)
 	.errors({
+		INVALID_CODE: {
+			data: z.object({
+				attemptsLeft: z.number(),
+			}),
+			status: 400,
+		},
 		UNAUTHORIZED: {},
 	});
 

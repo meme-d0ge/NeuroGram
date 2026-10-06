@@ -34,7 +34,11 @@ export class AuthService {
 		if (!result.success) {
 			switch (result.error.type) {
 				case "COOLDOWN":
-					throw errors.TOO_MANY_REQUESTS();
+					throw errors.OTP_COOLDOWN({
+						data: {
+							retryAfter: result.error.retryAfter,
+						},
+					});
 			}
 		}
 		return {
@@ -56,14 +60,17 @@ export class AuthService {
 			input.otpToken,
 			input.otpCode,
 		);
+
 		if (!result.success) {
 			switch (result.error.type) {
 				case "INVALID_CODE":
-					throw errors.UNAUTHORIZED();
+					throw errors.INVALID_CODE({
+						data: {
+							attemptsLeft: result.error.attemptsLeft,
+						},
+					});
 				case "EXPIRED":
 					throw errors.UNAUTHORIZED();
-				case "TOO_MANY_ATTEMPTS":
-					throw errors.TOO_MANY_REQUESTS();
 			}
 		}
 		const [user] = await this.db

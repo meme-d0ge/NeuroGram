@@ -1,5 +1,5 @@
 import { randomBytes, randomInt } from "node:crypto";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import {
 	OTP_CODE_LENGTH,
 	OtpCode,
@@ -13,35 +13,54 @@ import { parseJson } from "../../shared/safe-json-parse.js";
 import { SmsProviderService } from "../sms-provider/sms-provider.service.js";
 import { redisOtpDtoSchema } from "./dto/otp.dto.js";
 import { OTP_PURPOSES, OtpPurpose } from "./otp.purposes.js";
+import { otpScripts } from "./otp.scripts.js";
 
-export type OtpIssueError = { type: "COOLDOWN" };
+export type OtpIssueError = { type: "COOLDOWN"; retryAfter: number };
 export type OtpVerifyError =
 	| { type: "INVALID_CODE"; attemptsLeft: number }
-	| { type: "EXPIRED" }
-	| { type: "TOO_MANY_ATTEMPTS" };
-
+	| { type: "EXPIRED" };
 @Injectable()
-export class OtpService {
+export class OtpService implements OnModuleInit {
 	constructor(
 		@Inject(REDIS_CLIENT) private readonly redis: Redis,
 		private readonly smsProviderService: SmsProviderService,
 	) {}
 
-	private redisKey(token: string, name: OtpPurpose) {
-		return `otp:${name}:${token}`;
+	onModuleInit() {
+		for (const [name, definition] of Object.entries(otpScripts)) {
+			this.redis.defineCommand(name, definition);
+		}
+	}
+
+	private redisTokenKey(token: string, name: OtpPurpose) {
+		return `otp:token:${name}:${token}`;
+	}
+
+	private redisIssueCooldownKey(token: string, name: OtpPurpose) {
+		return `otp:issue:${name}:${token}`;
+	}
+
+	private redisVerifyAttemptsKey(token: string, name: OtpPurpose) {
+		return `otp:attempts:${name}:${token}`;
 	}
 
 	async issue(
 		purpose: OtpPurpose,
 		phone: Phone,
 	): Promise<Result<OtpToken, OtpIssueError>> {
+		const [status, ttl] = await this.redis.cooldown(
+			this.redisIssueCooldownKey(phone, purpose),
+			OTP_PURPOSES[purpose].cooldownSeconds,
+		);
+		if (status === "EXISTED") return err({ type: "COOLDOWN", retryAfter: ttl });
+
 		const code = String(randomInt(0, 10 ** OTP_CODE_LENGTH)).padStart(
 			OTP_CODE_LENGTH,
 			"0",
 		);
 		const token = randomBytes(32).toString("hex");
 		await this.redis.set(
-			this.redisKey(token, purpose),
+			this.redisTokenKey(token, purpose),
 			JSON.stringify({
 				phone: phone,
 				code: code,
@@ -60,9 +79,30 @@ export class OtpService {
 		token: OtpToken,
 		code: OtpCode,
 	): Promise<Result<Phone, OtpVerifyError>> {
-		const key = this.redisKey(token, purpose);
-		const data = await this.redis.get(key);
+		const tokenKey = this.redisTokenKey(token, purpose);
+		const data = await this.redis.get(tokenKey);
 		if (data === null) return err({ type: "EXPIRED" });
+
+		const attemptsKey = this.redisVerifyAttemptsKey(token, purpose);
+		const results = await this.redis
+			.multi()
+			.incr(attemptsKey)
+			.expire(attemptsKey, OTP_PURPOSES[purpose].ttlSeconds)
+			.exec();
+
+		if (!results) {
+			throw new Error("Redis transaction aborted");
+		}
+
+		const [[incrErr, attempts]] = results;
+		if (incrErr) throw incrErr;
+		const attemptCount = attempts as number;
+
+		if (attemptCount > OTP_PURPOSES[purpose].maxAttempts) {
+			await this.redis.del(tokenKey, attemptsKey);
+			return err({ type: "EXPIRED" });
+		}
+
 		const result = parseJson(data, redisOtpDtoSchema);
 		if (!result.success) {
 			throw new Error(`corrupted OTP payload (purpose: ${purpose})`, {
@@ -70,8 +110,11 @@ export class OtpService {
 			});
 		}
 		if (result.data.code !== code)
-			return err({ type: "INVALID_CODE", attemptsLeft: 10 }); //TODO
-		if ((await this.redis.del(key)) === 0) return err({ type: "EXPIRED" });
+			return err({
+				type: "INVALID_CODE",
+				attemptsLeft: OTP_PURPOSES[purpose].maxAttempts - attemptCount,
+			});
+		if ((await this.redis.del(tokenKey)) === 0) return err({ type: "EXPIRED" });
 		return ok(result.data.phone);
 	}
 }
