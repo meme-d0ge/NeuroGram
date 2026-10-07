@@ -110,7 +110,7 @@ export class OtpService implements OnModuleInit {
 				cause: result.error,
 			});
 		}
-		if (result.data.code !== code)
+		if (result.data.code !== code) {
 			if (OTP_PURPOSES[purpose].maxAttempts - attemptCount > 0) {
 				return err({
 					type: "INVALID_CODE",
@@ -121,7 +121,9 @@ export class OtpService implements OnModuleInit {
 					type: "ATTEMPTS_EXCEEDED",
 				});
 			}
+		}
 		if ((await this.redis.del(tokenKey)) === 0) return err({ type: "EXPIRED" });
+		await this.redis.del(attemptsKey);
 		return ok(result.data.phone);
 	}
 }
