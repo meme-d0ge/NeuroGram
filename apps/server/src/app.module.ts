@@ -5,6 +5,7 @@ import { ConfigModule } from "./config/config.module.js";
 import { DatabaseModule } from "./db/database.module.js";
 import { AuthModule } from "./module/auth/auth.module.js";
 import { OtpModule } from "./module/otp/otp.module.js";
+import { SessionModule } from "./module/session/session.module.js";
 import { SmsProviderModule } from "./module/sms-provider/sms-provider.module.js";
 import { RedisModule } from "./redis/redis.module.js";
 
@@ -28,6 +29,7 @@ import { RedisModule } from "./redis/redis.module.js";
 		OtpModule,
 		SmsProviderModule,
 		AuthModule,
+		SessionModule,
 	],
 	controllers: [],
 	providers: [],

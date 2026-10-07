@@ -47,8 +47,8 @@ export class AuthController {
 						}
 					}
 					if (result.data.status === "authorized") {
-						const { sessionId, ...data } = result.data;
-						setCookie(context.resHeaders, "session", sessionId, {
+						const { sessionToken, ...data } = result.data;
+						setCookie(context.resHeaders, "session", sessionToken, {
 							httpOnly: true,
 							secure: true,
 							sameSite: "lax",
@@ -76,8 +76,8 @@ export class AuthController {
 						}
 					}
 
-					const { sessionId, ...data } = result.data;
-					setCookie(context.resHeaders, "session", sessionId, {
+					const { sessionToken, ...data } = result.data;
+					setCookie(context.resHeaders, "session", sessionToken, {
 						httpOnly: true,
 						secure: true,
 						sameSite: "lax",

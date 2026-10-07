@@ -3,6 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { InjectDrizzle } from "@nestjs/drizzle";
 import { SignUpToken } from "@repo/contract/module/auth/entities";
 import { OtpCode, OtpToken } from "@repo/contract/module/otp/entities";
+import { SessionToken } from "@repo/contract/module/session/entities";
 import { Phone, phoneSchema } from "@repo/contract/shared/entities/phone";
 import {
 	SelfUser,
@@ -25,10 +26,10 @@ import { toSelfUser } from "../user/user.mapper.js";
 const SIGN_UP_TOKEN_TTL_SECONDS = 900;
 
 export type SignInResult =
-	| { status: "authorized"; user: SelfUser; sessionId: string }
+	| { status: "authorized"; user: SelfUser; sessionToken: SessionToken }
 	| { status: "signUpRequired"; signUpToken: SignUpToken };
 
-export type SignUpResult = { user: SelfUser; sessionId: string };
+export type SignUpResult = { user: SelfUser; sessionToken: SessionToken };
 export type SignUpError =
 	| { type: "SIGN_UP_TOKEN_EXPIRED" }
 	| { type: "USER_EXISTS" };
@@ -73,7 +74,7 @@ export class AuthService {
 		return ok({
 			status: "authorized",
 			user: toSelfUser(user),
-			sessionId: "test_sessionId",
+			sessionToken: "test_session_token",
 		});
 	}
 
@@ -102,7 +103,7 @@ export class AuthService {
 		const newUser = toSelfUser(created);
 		return ok({
 			user: newUser,
-			sessionId: "test_sessionId",
+			sessionToken: "test_session_token",
 		});
 	}
 }
