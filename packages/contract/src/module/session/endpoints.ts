@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { baseProcedure } from "../../shared/procedures.js";
-import { SessionData } from "./entities.js";
+import { sessionDataSchema } from "./entities.js";
 
 export const getAllSession = baseProcedure
 	.route({ method: "GET", path: "/session/" })
 	.output(
 		z.object({
-			sessions: z.array(SessionData),
+			sessions: z.array(sessionDataSchema),
 		}),
 	);
 
@@ -22,7 +22,7 @@ export const getSession = baseProcedure
 	})
 	.output(
 		z.object({
-			session: SessionData,
+			session: sessionDataSchema,
 		}),
 	);
 

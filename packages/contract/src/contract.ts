@@ -3,12 +3,24 @@ import type {
 	InferContractRouterOutputs,
 } from "@orpc/contract";
 import { sendCode, signIn, signUp } from "./module/auth/endpoints.js";
+import {
+	deleteAllSession,
+	deleteSession,
+	getAllSession,
+	getSession,
+} from "./module/session/endpoints.js";
 
 export const contract = {
 	auth: {
 		sendCode,
 		signIn,
 		signUp,
+	},
+	session: {
+		getAllSession,
+		deleteAllSession,
+		getSession,
+		deleteSession,
 	},
 };
 

@@ -12,9 +12,9 @@ export const sessionTokenSchema = z
 	.length(64);
 export type SessionToken = z.infer<typeof sessionTokenSchema>;
 
-export const SessionData = z.object({
+export const sessionDataSchema = z.object({
 	id: sessionIdSchema,
-	ip: z.ipv4(),
+	ip: z.union([z.ipv4(), z.ipv6()]),
 	device: z.string(),
 	platform: z.string(),
 	application: z.string(),
@@ -22,3 +22,4 @@ export const SessionData = z.object({
 	login_date: z.date(),
 	last_active_date: z.date(),
 });
+export type SessionData = z.infer<typeof sessionDataSchema>;

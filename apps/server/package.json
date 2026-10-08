@@ -37,6 +37,7 @@
 		"@scalar/express-api-reference": "^0.10.24",
 		"drizzle-orm": "^1.0.0-rc.4",
 		"ioredis": "^6.0.0",
+		"node-device-detector": "^2.2.7",
 		"pg": "^8.23.1",
 		"reflect-metadata": "^0.2.2",
 		"rxjs": "^7.8.1",

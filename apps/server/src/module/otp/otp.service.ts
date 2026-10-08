@@ -38,7 +38,7 @@ export class OtpService implements OnModuleInit {
 	}
 
 	private redisIssueCooldownKey(token: string, name: OtpPurpose) {
-		return `otp:issue:${name}:${token}`;
+		return `otp:issue:cooldown:${name}:${token}`;
 	}
 
 	private redisVerifyAttemptsKey(token: string, name: OtpPurpose) {

@@ -3,7 +3,10 @@ import { Inject, Injectable } from "@nestjs/common";
 import { InjectDrizzle } from "@nestjs/drizzle";
 import { SignUpToken } from "@repo/contract/module/auth/entities";
 import { OtpCode, OtpToken } from "@repo/contract/module/otp/entities";
-import { SessionToken } from "@repo/contract/module/session/entities";
+import {
+	SessionData,
+	SessionToken,
+} from "@repo/contract/module/session/entities";
 import { Phone, phoneSchema } from "@repo/contract/shared/entities/phone";
 import {
 	SelfUser,
@@ -15,12 +18,14 @@ import { Redis } from "ioredis";
 import type { Database } from "../../db/relations.js";
 import { usersTable } from "../../db/schema.js";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
+import { UaHeaders } from "../../shared/pickUaHeaders.js";
 import { err, ok, Result } from "../../shared/result.js";
 import {
 	OtpIssueError,
 	OtpService,
 	OtpVerifyError,
 } from "../otp/otp.service.js";
+import { SessionService } from "../session/session.service.js";
 import { toSelfUser } from "../user/user.mapper.js";
 
 const SIGN_UP_TOKEN_TTL_SECONDS = 900;
@@ -38,6 +43,7 @@ export type SignUpError =
 export class AuthService {
 	constructor(
 		private readonly otpService: OtpService,
+		private readonly sessionService: SessionService,
 		@InjectDrizzle() private readonly db: Database,
 		@Inject(REDIS_CLIENT) private readonly redis: Redis,
 	) {}
@@ -53,6 +59,8 @@ export class AuthService {
 	async signIn(
 		otpToken: OtpToken,
 		otpCode: OtpCode,
+		ip: SessionData["ip"],
+		uaHeaders: UaHeaders,
 	): Promise<Result<SignInResult, OtpVerifyError>> {
 		const result = await this.otpService.verify("auth", otpToken, otpCode);
 		if (!result.success) return err(result.error);
@@ -71,10 +79,15 @@ export class AuthService {
 			});
 		}
 
+		const sessionToken = await this.sessionService.createSession(
+			user.id,
+			ip,
+			uaHeaders,
+		);
 		return ok({
 			status: "authorized",
 			user: toSelfUser(user),
-			sessionToken: "test_session_token",
+			sessionToken: sessionToken,
 		});
 	}
 
@@ -82,6 +95,8 @@ export class AuthService {
 		signUpToken: SignUpToken,
 		firstName: UserFirstName,
 		lastName: UserLastName,
+		ip: SessionData["ip"],
+		uaHeaders: UaHeaders,
 	): Promise<Result<SignUpResult, SignUpError>> {
 		const value = await this.redis.getdel(this.redisSignUpKey(signUpToken));
 		if (value === null) return err({ type: "SIGN_UP_TOKEN_EXPIRED" });
@@ -100,10 +115,15 @@ export class AuthService {
 			.then((res) => res.at(0));
 		if (created === undefined) return err({ type: "USER_EXISTS" });
 
+		const sessionToken = await this.sessionService.createSession(
+			created.id,
+			ip,
+			uaHeaders,
+		);
 		const newUser = toSelfUser(created);
 		return ok({
 			user: newUser,
-			sessionToken: "test_session_token",
+			sessionToken: sessionToken,
 		});
 	}
 }

@@ -31,6 +31,8 @@ export class AuthController {
 					const result = await this.authService.signIn(
 						input.otpToken,
 						input.otpCode,
+						context.ip,
+						context.uaHeaders,
 					);
 					if (!result.success) {
 						switch (result.error.type) {
@@ -66,6 +68,8 @@ export class AuthController {
 						input.signUpToken,
 						input.firstName,
 						input.lastName,
+						context.ip,
+						context.uaHeaders,
 					);
 					if (!result.success) {
 						switch (result.error.type) {
