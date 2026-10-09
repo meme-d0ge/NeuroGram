@@ -17,6 +17,8 @@ export const envSchema = z.object({
 	REDIS_PASSWORD: z.string().optional(),
 	REDIS_DB: z.coerce.number().int().min(0).default(0),
 	REDIS_TLS: z.stringbool().default(false),
+
+	GEOIP_DB_PATH: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;

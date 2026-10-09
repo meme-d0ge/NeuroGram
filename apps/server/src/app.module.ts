@@ -6,6 +6,7 @@ import type { Request as ExpressRequest } from "express";
 import { ConfigModule } from "./config/config.module.js";
 import { DatabaseModule } from "./db/database.module.js";
 import { AuthModule } from "./module/auth/auth.module.js";
+import { GeoIpModule } from "./module/geo-ip/geo-ip.module.js";
 import { OtpModule } from "./module/otp/otp.module.js";
 import { SessionModule } from "./module/session/session.module.js";
 import { SmsProviderModule } from "./module/sms-provider/sms-provider.module.js";
@@ -36,6 +37,7 @@ import { toClientInfo } from "./shared/toClientInfo.js";
 		SmsProviderModule,
 		AuthModule,
 		SessionModule,
+		GeoIpModule,
 	],
 	controllers: [],
 	providers: [],

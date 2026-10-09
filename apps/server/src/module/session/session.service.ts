@@ -13,12 +13,14 @@ import { sessionsTable } from "../../db/schema.js";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
 import { describeClient } from "../../shared/describeClient.js";
 import { UaHeaders } from "../../shared/pickUaHeaders.js";
+import { GeoIpService } from "../geo-ip/geo-ip.service.js";
 
 @Injectable()
 export class SessionService {
 	constructor(
 		@Inject(REDIS_CLIENT) private readonly redis: Redis,
 		@InjectDrizzle() private readonly db: Database,
+		private readonly geoIpService: GeoIpService,
 	) {}
 	private LAST_ACTIVE_THROTTLE_SECONDS = 5 * 60;
 	private TTL_SECOND_REDIS_SESSION_TOKEN = 60 * 60;
@@ -45,6 +47,8 @@ export class SessionService {
 			"EX",
 			this.TTL_SECOND_REDIS_SESSION_TOKEN,
 		);
+
+		const location = this.geoIpService.getLocationFromIp(userIp);
 		await this.db.insert(sessionsTable).values({
 			userId: userId,
 			ip: userIp,
@@ -52,7 +56,7 @@ export class SessionService {
 			device: clientDescription.device,
 			platform: clientDescription.platform,
 			application: clientDescription.application,
-			location: "Moscow Test", // TODO
+			location: location,
 		});
 		return sessionToken;
 	}
