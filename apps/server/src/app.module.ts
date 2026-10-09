@@ -11,7 +11,7 @@ import { OtpModule } from "./module/otp/otp.module.js";
 import { SessionModule } from "./module/session/session.module.js";
 import { SmsProviderModule } from "./module/sms-provider/sms-provider.module.js";
 import { RedisModule } from "./redis/redis.module.js";
-import { toClientInfo } from "./shared/toClientInfo.js";
+import { toClientInfo } from "./toClientInfo.js";
 
 @Module({
 	imports: [

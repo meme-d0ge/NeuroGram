@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { baseProcedure } from "../../shared/procedures.js";
-import { sessionDataSchema } from "./entities.js";
+import { sessionDataSchema, sessionIdSchema } from "./entities.js";
 
 export const getAllSession = baseProcedure
 	.route({ method: "GET", path: "/session/" })
@@ -18,15 +18,18 @@ export const deleteAllSession = baseProcedure.route({
 export const getSession = baseProcedure
 	.route({
 		method: "GET",
-		path: "/session/:id",
+		path: "/session/{id}",
 	})
+	.input(z.object({ id: sessionIdSchema }))
 	.output(
 		z.object({
 			session: sessionDataSchema,
 		}),
 	);
 
-export const deleteSession = baseProcedure.route({
-	method: "DELETE",
-	path: "/session/:id",
-});
+export const deleteSession = baseProcedure
+	.route({
+		method: "DELETE",
+		path: "/session/{id}",
+	})
+	.input(z.object({ id: sessionIdSchema }));

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { phoneSchema } from "./phone.js";
 
-export const userIdSchema = z.uuid();
+export const userIdSchema = z.uuidv7();
 export type UserId = z.infer<typeof userIdSchema>;
 
 export const userFirstNameSchema = z.string().min(1).max(64);

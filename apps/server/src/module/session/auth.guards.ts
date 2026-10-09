@@ -10,11 +10,12 @@ export class AuthGuards {
 	readonly authenticated = os
 		.$context<ORPCGlobalContext>()
 		.middleware(async ({ context, next }) => {
-			const hashToken = context.sessionTokenHash;
-			const userId = hashToken
-				? await this.sessionService.validate(hashToken)
-				: null;
+			const sessionTokenHash = context.sessionTokenHash;
+			if (!sessionTokenHash) throw new ORPCError("UNAUTHORIZED");
+
+			const userId = await this.sessionService.validate(sessionTokenHash);
 			if (!userId) throw new ORPCError("UNAUTHORIZED");
+			await this.sessionService.touch(sessionTokenHash);
 			return next({
 				context: { userId },
 			});

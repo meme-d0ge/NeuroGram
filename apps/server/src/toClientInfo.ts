@@ -1,9 +1,9 @@
-import { createHash } from "node:crypto";
 import { isIP } from "node:net";
 import { getCookie } from "@orpc/server/helpers";
 import { Request as ExpressRequest } from "express";
-import { NAME_SESSION_COOKIE } from "../module/session/session.constant.js";
-import { pickUaHeaders, UaHeaders } from "./pickUaHeaders.js";
+import { SESSION_COOKIE_NAME } from "./module/session/session.constant.js";
+import { hashSessionToken } from "./shared/hashSessionToken.js";
+import { pickUaHeaders, UaHeaders } from "./shared/pickUaHeaders.js";
 
 export type ClientInfo = {
 	ip: string;
@@ -22,10 +22,10 @@ export function toClientInfo(request: ExpressRequest): ClientInfo {
 function getSessionTokenHashFromCookie(request: ExpressRequest) {
 	const sessionToken = getCookie(
 		new Headers({ cookie: request.headers.cookie ?? "" }),
-		NAME_SESSION_COOKIE,
+		SESSION_COOKIE_NAME,
 	);
 	if (!sessionToken) return undefined;
-	return createHash("sha256").update(sessionToken, "utf-8").digest("hex");
+	return hashSessionToken(sessionToken);
 }
 
 function normalizeIp(raw: string | undefined): string {

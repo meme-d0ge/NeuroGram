@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { relations } from "drizzle-orm/_relations";
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { index, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
 	id: uuid("id").primaryKey().default(sql`uuidv7()`),
@@ -20,28 +20,32 @@ export const usersTable = pgTable("users", {
 		.$onUpdate(() => sql`now()`),
 });
 
-export const sessionsTable = pgTable("sessions", {
-	id: uuid("id").primaryKey().default(sql`uuidv7()`),
-	userId: uuid("user_id")
-		.notNull()
-		.references(() => usersTable.id, { onDelete: "cascade" }),
-	sessionToken: varchar("session_token").unique().notNull(),
+export const sessionsTable = pgTable(
+	"sessions",
+	{
+		id: uuid("id").primaryKey().default(sql`uuidv7()`),
+		userId: uuid("user_id")
+			.notNull()
+			.references(() => usersTable.id, { onDelete: "cascade" }),
+		sessionToken: varchar("session_token").unique().notNull(),
 
-	ip: varchar("ip"),
-	device: varchar("device"),
-	platform: varchar("platform"),
-	application: varchar("application"),
-	location: varchar("location"),
+		ip: varchar("ip"),
+		device: varchar("device"),
+		platform: varchar("platform"),
+		application: varchar("application"),
+		location: varchar("location"),
 
-	createdAt: timestamp("created_at", {
-		withTimezone: true,
-	})
-		.notNull()
-		.defaultNow(),
-	lastActiveDate: timestamp("last_active_date", { withTimezone: true })
-		.notNull()
-		.defaultNow(),
-});
+		createdAt: timestamp("created_at", {
+			withTimezone: true,
+		})
+			.notNull()
+			.defaultNow(),
+		lastActiveDate: timestamp("last_active_date", { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+	},
+	(table) => [index("sessions_user_id_idx").on(table.userId)],
+);
 
 export const usersRelations = relations(usersTable, ({ many }) => ({
 	sessions: many(sessionsTable),

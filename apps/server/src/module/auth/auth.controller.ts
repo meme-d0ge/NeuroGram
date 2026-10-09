@@ -3,7 +3,7 @@ import { Implement, implement } from "@orpc/nest";
 import { setCookie } from "@orpc/server/helpers";
 import { contract } from "@repo/contract";
 import { SessionToken } from "@repo/contract/module/session/entities";
-import { NAME_SESSION_COOKIE } from "../session/session.constant.js";
+import { SESSION_COOKIE_NAME } from "../session/session.constant.js";
 import { AuthService } from "./auth.service.js";
 
 @Controller()
@@ -14,7 +14,7 @@ export class AuthController {
 		resHeaders: Headers | undefined,
 		sessionToken: SessionToken,
 	) {
-		setCookie(resHeaders, NAME_SESSION_COOKIE, sessionToken, {
+		setCookie(resHeaders, SESSION_COOKIE_NAME, sessionToken, {
 			httpOnly: true,
 			secure: true,
 			sameSite: "lax",

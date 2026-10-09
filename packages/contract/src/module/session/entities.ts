@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-export const sessionIdSchema = z
-	.string()
-	.regex(/^[0-9A-Fa-f]+$/, "Invalid hex")
-	.length(64);
+export const sessionIdSchema = z.uuidv7();
 export type SessionId = z.infer<typeof sessionIdSchema>;
 
 export const sessionTokenSchema = z
