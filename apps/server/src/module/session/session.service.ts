@@ -25,10 +25,15 @@ export class SessionService {
 	private LAST_ACTIVE_THROTTLE_SECONDS = 5 * 60;
 	private TTL_SECOND_REDIS_SESSION_TOKEN = 60 * 60;
 
+	async validate(sessionToken: SessionToken): Promise<null | string> {
+		const value = await this.redis.get(this.redisSessionKey(sessionToken));
+		if (!value) return null;
+		return value;
+	}
+
 	private redisSessionKey(sessionToken: string) {
 		return `session:${sessionToken}`;
 	}
-
 	async createSession(
 		userId: UserId,
 		userIp: SessionData["ip"],

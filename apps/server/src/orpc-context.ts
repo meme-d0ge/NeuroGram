@@ -6,5 +6,6 @@ declare module "@orpc/nest" {
 		resHeaders?: Headers;
 		ip: string;
 		uaHeaders: UaHeaders;
+		sessionTokenHash?: string;
 	}
 }

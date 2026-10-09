@@ -2,11 +2,26 @@ import { Controller } from "@nestjs/common";
 import { Implement, implement } from "@orpc/nest";
 import { setCookie } from "@orpc/server/helpers";
 import { contract } from "@repo/contract";
+import { SessionToken } from "@repo/contract/module/session/entities";
+import { NAME_SESSION_COOKIE } from "../session/session.constant.js";
 import { AuthService } from "./auth.service.js";
 
 @Controller()
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
+
+	private setSessionCookie(
+		resHeaders: Headers | undefined,
+		sessionToken: SessionToken,
+	) {
+		setCookie(resHeaders, NAME_SESSION_COOKIE, sessionToken, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "lax",
+			maxAge: 60 * 60 * 24 * 400,
+		});
+	}
+
 	@Implement(contract.auth)
 	auth() {
 		return implement(contract.auth).router({
@@ -50,12 +65,9 @@ export class AuthController {
 					}
 					if (result.data.status === "authorized") {
 						const { sessionToken, ...data } = result.data;
-						setCookie(context.resHeaders, "session", sessionToken, {
-							httpOnly: true,
-							secure: true,
-							sameSite: "lax",
-							maxAge: 60 * 60 * 24 * 400,
-						});
+						context.resHeaders;
+						this.setSessionCookie(context.resHeaders, sessionToken);
+
 						return data;
 					}
 
@@ -81,12 +93,7 @@ export class AuthController {
 					}
 
 					const { sessionToken, ...data } = result.data;
-					setCookie(context.resHeaders, "session", sessionToken, {
-						httpOnly: true,
-						secure: true,
-						sameSite: "lax",
-						maxAge: 60 * 60 * 24 * 400,
-					});
+					this.setSessionCookie(context.resHeaders, sessionToken);
 
 					return data;
 				},
