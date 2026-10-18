@@ -25,11 +25,24 @@ export const getSession = baseProcedure
 		z.object({
 			session: sessionDataSchema,
 		}),
-	);
+	)
+	.errors({
+		NOT_FOUND_SESSION: {
+			status: 404,
+		},
+	});
 
 export const deleteSession = baseProcedure
 	.route({
 		method: "DELETE",
 		path: "/session/{id}",
 	})
-	.input(z.object({ id: sessionIdSchema }));
+	.input(z.object({ id: sessionIdSchema }))
+	.errors({
+		CANNOT_DELETE_CURRENT_SESSION: {
+			status: 403,
+		},
+		NOT_FOUND_SESSION: {
+			status: 404,
+		},
+	});

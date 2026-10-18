@@ -13,11 +13,14 @@ export class AuthGuards {
 			const sessionTokenHash = context.sessionTokenHash;
 			if (!sessionTokenHash) throw new ORPCError("UNAUTHORIZED");
 
-			const userId = await this.sessionService.validate(sessionTokenHash);
-			if (!userId) throw new ORPCError("UNAUTHORIZED");
+			const result = await this.sessionService.validate(sessionTokenHash);
+			if (!result.success) throw new ORPCError("UNAUTHORIZED");
 			await this.sessionService.touch(sessionTokenHash);
 			return next({
-				context: { userId },
+				context: {
+					userId: result.data.userId,
+					sessionId: result.data.sessionId,
+				},
 			});
 		});
 }

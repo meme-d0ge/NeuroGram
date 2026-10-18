@@ -29,11 +29,11 @@ export const sessionsTable = pgTable(
 			.references(() => usersTable.id, { onDelete: "cascade" }),
 		sessionToken: varchar("session_token").unique().notNull(),
 
-		ip: varchar("ip"),
-		device: varchar("device"),
-		platform: varchar("platform"),
-		application: varchar("application"),
-		location: varchar("location"),
+		ip: varchar("ip").notNull(),
+		device: varchar("device").notNull(),
+		platform: varchar("platform").notNull(),
+		application: varchar("application").notNull(),
+		location: varchar("location").notNull(),
 
 		createdAt: timestamp("created_at", {
 			withTimezone: true,
