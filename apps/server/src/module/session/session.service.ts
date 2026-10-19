@@ -4,12 +4,10 @@ import { InjectDrizzle } from "@nestjs/drizzle";
 import {
 	SessionData,
 	SessionToken,
-	sessionIdSchema,
 } from "@repo/contract/module/session/entities";
-import { UserId, userIdSchema } from "@repo/contract/shared/entities/user";
+import { UserId } from "@repo/contract/shared/entities/user";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { Redis } from "ioredis";
-import { z } from "zod";
 import { type Database } from "../../db/relations.js";
 import { sessionsTable } from "../../db/schema.js";
 import { REDIS_CLIENT } from "../../redis/redis.constants.js";
@@ -17,21 +15,13 @@ import { describeClient } from "../../shared/describeClient.js";
 import { hashSessionToken } from "../../shared/hashSessionToken.js";
 import { UaHeaders } from "../../shared/pickUaHeaders.js";
 import { err, ok, Result } from "../../shared/result.js";
-import { parseJson } from "../../shared/safe-json-parse.js";
 import { GeoIpService } from "../geo-ip/geo-ip.service.js";
+import { SessionCache, ValidateSessionResult } from "./session.cache.js";
 import { toSessionData } from "./session.mapper.js";
 
 const LAST_ACTIVE_THROTTLE_SECONDS = 5 * 60;
-const TTL_SECOND_REDIS_SESSION_TOKEN = 60 * 10;
 
 type GetSessionResult = Result<{ session: SessionData }, { type: "NOT_FOUND" }>;
-
-const validateSessionDataSchema = z.object({
-	userId: userIdSchema,
-	sessionId: sessionIdSchema,
-});
-type ValidateSessionData = z.infer<typeof validateSessionDataSchema>;
-type ValidateSessionResult = Result<ValidateSessionData, { type: "NOT_FOUND" }>;
 
 @Injectable()
 export class SessionService {
@@ -39,37 +29,31 @@ export class SessionService {
 		@Inject(REDIS_CLIENT) private readonly redis: Redis,
 		@InjectDrizzle() private readonly db: Database,
 		private readonly geoIpService: GeoIpService,
+		private readonly sessionCache: SessionCache,
 	) {}
 
 	async validate(sessionTokenHash: string): Promise<ValidateSessionResult> {
-		const value = await this.redis.get(this.redisSessionKey(sessionTokenHash));
-		if (value) {
-			if (value === "revoked") return err({ type: "NOT_FOUND" });
-			const result = parseJson(value, validateSessionDataSchema);
-			if (result.success) return ok(result.data);
-		}
+		const result = await this.sessionCache.getSessionCache(sessionTokenHash);
+		if (result.success) return result;
 
-		const result = await this.db
+		const data = await this.db
 			.select({ userId: sessionsTable.userId, sessionId: sessionsTable.id })
 			.from(sessionsTable)
-			.where(eq(sessionsTable.sessionToken, sessionTokenHash))
+			.where(eq(sessionsTable.sessionTokenHash, sessionTokenHash))
 			.limit(1)
 			.then((result) => result.at(0));
-		if (!result) return err({ type: "NOT_FOUND" });
+		if (!data) return err({ type: "NOT_FOUND" });
 
-		const key = this.redisSessionKey(sessionTokenHash);
-		const validateSessionData = {
-			userId: result.userId,
-			sessionId: result.sessionId,
-		};
-		await this.redis.set(
-			key,
-			JSON.stringify(validateSessionData),
-			"EX",
-			TTL_SECOND_REDIS_SESSION_TOKEN,
-			"NX",
+		await this.sessionCache.updateSessionCache(
+			sessionTokenHash,
+			data.userId,
+			data.sessionId,
 		);
-		return ok(validateSessionData);
+
+		return ok({
+			userId: data.userId,
+			sessionId: data.sessionId,
+		});
 	}
 
 	async getSession(
@@ -106,18 +90,10 @@ export class SessionService {
 					ne(sessionsTable.id, keepSessionId),
 				),
 			)
-			.returning({ sessionToken: sessionsTable.sessionToken });
+			.returning({ sessionTokenHash: sessionsTable.sessionTokenHash });
 
-		if (sessions.length === 0) return;
-		const data = sessions.flatMap((key) => [
-			this.redisSessionKey(key.sessionToken),
-			"revoked",
-		]);
-		await this.redis.msetex(
-			sessions.length,
-			...data,
-			"EX",
-			TTL_SECOND_REDIS_SESSION_TOKEN,
+		await this.sessionCache.revokeSessions(
+			sessions.map((v) => v.sessionTokenHash),
 		);
 	}
 
@@ -138,19 +114,12 @@ export class SessionService {
 		if (!session) {
 			return err({ type: "NOT_FOUND_SESSION" });
 		}
-		await this.redis.set(
-			this.redisSessionKey(session.sessionToken),
-			"revoked",
-			"EX",
-			TTL_SECOND_REDIS_SESSION_TOKEN,
-		);
+
+		await this.sessionCache.revokeSession(session.sessionTokenHash);
 
 		return ok({});
 	}
 
-	private redisSessionKey(sessionTokenHash: string) {
-		return `session:${sessionTokenHash}`;
-	}
 	async createSession(
 		userId: UserId,
 		userIp: SessionData["ip"],
@@ -166,25 +135,24 @@ export class SessionService {
 			.values({
 				userId: userId,
 				ip: userIp,
-				sessionToken: sessionTokenHash,
+				sessionTokenHash: sessionTokenHash,
 				device: clientDescription.device,
 				platform: clientDescription.platform,
 				application: clientDescription.application,
 				location: location,
 			})
-			.returning()
+			.returning({
+				sessionTokenHash: sessionsTable.sessionTokenHash,
+				sessionId: sessionsTable.id,
+				userId: sessionsTable.userId,
+			})
 			.then((result) => result.at(0));
 		if (!session) throw new Error("test error redis");
 
-		const key = this.redisSessionKey(session.sessionToken);
-		await this.redis.set(
-			key,
-			JSON.stringify({
-				userId: session.userId,
-				sessionId: session.id,
-			}),
-			"EX",
-			TTL_SECOND_REDIS_SESSION_TOKEN,
+		await this.sessionCache.updateSessionCache(
+			session.sessionTokenHash,
+			session.userId,
+			session.sessionId,
 		);
 
 		return sessionToken;
@@ -193,9 +161,9 @@ export class SessionService {
 	private lastActiveKey(hashSessionToken: string) {
 		return `session:active:${hashSessionToken}`;
 	}
-	async touch(hashSessionToken: string): Promise<void> {
+	async touch(sessionTokenHash: string): Promise<void> {
 		const acquired = await this.redis.set(
-			this.lastActiveKey(hashSessionToken),
+			this.lastActiveKey(sessionTokenHash),
 			"1",
 			"EX",
 			LAST_ACTIVE_THROTTLE_SECONDS,
@@ -206,6 +174,6 @@ export class SessionService {
 		await this.db
 			.update(sessionsTable)
 			.set({ lastActiveDate: sql`now()` })
-			.where(eq(sessionsTable.sessionToken, hashSessionToken));
+			.where(eq(sessionsTable.sessionTokenHash, sessionTokenHash));
 	}
 }
