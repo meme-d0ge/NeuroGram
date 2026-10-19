@@ -10,14 +10,19 @@
 		"check-types": "tsc -b"
 	},
 	"dependencies": {
+		"@base-ui/react": "^1.9.0",
+		"@tanstack/react-router": "^1.170.45",
+		"@tanstack/react-router-devtools": "^1.167.2",
 		"react": "^19.2.8",
 		"react-dom": "^19.2.8"
 	},
 	"devDependencies": {
+		"@tanstack/router-plugin": "^1.168.47",
 		"@types/node": "^24.13.3",
 		"@types/react": "^19.2.18",
 		"@types/react-dom": "^19.2.7",
 		"@vitejs/plugin-react": "^6.1.1",
+		"sass-embedded": "^1.105.2",
 		"vite": "^8.3.0"
 	}
 }

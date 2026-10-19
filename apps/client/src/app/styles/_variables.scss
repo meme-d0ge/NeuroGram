@@ -1,0 +1,13 @@
+@use 'media';
+
+:root {
+  --color-dark: #22201c;
+  --color-light: #f6f3ee;
+
+  --font-family-base: sans-serif;
+
+  --container-width: 1240px;
+  --container-padding-x: 20px;
+
+  --transition-duration: 0.2s;
+}
