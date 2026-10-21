@@ -2,12 +2,11 @@
 
 body {
   @include mixins.fluid-text(18, 16);
-
   font-family: var(--font-family-base);
   font-weight: 400;
   line-height: 1.28;
-  color: var(--color-dark);
-  background-color: var(--color-light);
+  color: var(--color-t1);
+  background-color: var(--color-bg);
 }
 
 a,

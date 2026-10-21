@@ -1,13 +1,136 @@
 @use 'media';
 
 :root {
-  --color-dark: #22201c;
-  --color-light: #f6f3ee;
+  --color-bg: #F6F3EE;
+  --color-wp: #ECE6DC;
+  --color-s1: #FFFDF9;
+  --color-s2: #F1ECE4;
+  --color-s3: #E6DFD4;
+  --color-ln: #E7E1D8;
 
-  --font-family-base: sans-serif;
+  --color-t1: #22201C;
+  --color-t2: #4D4842;
+  --color-t3: #736D64;
+  --color-t4: #A39C92;
 
-  --container-width: 1240px;
-  --container-padding-x: 20px;
+  --color-ac: #AC47C2;
+  --color-ac-hover: #9A3AB0;
+  --color-acs: #F3E4F4;
+  --color-onac: #FFFFFF;
+  --color-hl: #AC47C22E;
 
-  --transition-duration: 0.2s;
+  --color-bi: #FFFDF9;
+  --color-bo: #AC47C2;
+  --color-bot: #FFFFFF;
+  --color-bom: #F1D9F5;
+
+  --color-ok: #3B8452;
+  --color-warn: #B87A14;
+  --color-dg: #C4432D;
+  --color-soft: #FBE9E5;
+
+  --shadow-e1: 0 1px 2px rgba(34, 32, 28, 0.08);
+  --shadow-e2: 0 8px 24px rgba(34, 32, 28, 0.12), 0 2px 6px rgba(34, 32, 28, 0.06);
+  --shadow-e3: 0 24px 64px rgba(34, 32, 28, 0.2), 0 4px 12px rgba(34, 32, 28, 0.08);
+
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  --radius-xs: 6px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  --gutter-screen: 16px;
+  --gutter-thread: 12px;
+  --gap-section: 12px;
+  --card-padding: 20px;
+  --panel-sidebar: 100%;
+  --panel-info: 100%;
+
+  --thread-max: 720px;
+  --feed-max: 560px;
+  --settings-max: 620px;
+  --auth-max: 820px;
+  --bubble-max: 480px;
+
+  --font-family-base: 'Wix Madefor Display', system-ui, sans-serif;
+  --font-family-mono: 'Fira Code', monospace;
+
+  @include media.mobile-s-above {
+    --gutter-screen: 24px;
+    --gutter-thread: 16px;
+    --card-padding: 24px;
+  }
+
+  @include media.mobile-above {
+    --gutter-screen: 32px;
+    --gutter-thread: 24px;
+    --gap-section: 16px;
+    --card-padding: 32px;
+    --panel-sidebar: 320px;
+    --panel-info: 360px;
+  }
+
+  @include media.tablet-above {
+    --gutter-screen: 40px;
+    --gutter-thread: 32px;
+    --panel-sidebar: 360px;
+  }
+
+  @include media.desktop-above {
+    --panel-sidebar: 380px;
+    --panel-info: 340px;
+  }
+
+  @include media.desktop-l-above {
+    --gutter-screen: 48px;
+    --gutter-thread: 40px;
+    --gap-section: 24px;
+    --panel-sidebar: 420px;
+    --panel-info: 380px;
+  }
+}
+:root.dark {
+  --color-bg: #1A1816;
+  --color-wp: #151312;
+  --color-s1: #221F1D;
+  --color-s2: #2C2926;
+  --color-s3: #38332F;
+  --color-ln: #34302C;
+
+  --color-t1: #F1ECE5;
+  --color-t2: #C9C1B6;
+  --color-t3: #A39C92;
+  --color-t4: #736D64;
+
+  --color-ac: #D080E2;
+  --color-ac-hover: #D9BFDD;
+  --color-acs: #3A2B3C;
+  --color-onac: #1A1816;
+  --color-hl: #D080E247;
+
+  --color-bi: #2C2926;
+  --color-bo: #573160;
+  --color-bot: #F7EEF8;
+  --color-bom: #D9BFDD;
+
+  --color-ok: #7CC98F;
+  --color-warn: #E8B455;
+  --color-dg: #F07A63;
+  --color-soft: #3A2722;
+
+  --shadow-e1: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-e2: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-e3: 0 24px 64px rgba(0, 0, 0, 0.45);
 }
