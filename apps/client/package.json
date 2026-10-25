@@ -13,8 +13,13 @@
 		"@base-ui/react": "^1.9.0",
 		"@tanstack/react-router": "^1.170.45",
 		"@tanstack/react-router-devtools": "^1.167.2",
+		"country-flag-icons": "^1.6.20",
+		"intlayer": "^9.7.0",
+		"libphonenumber-js": "^1.13.15",
+		"lucide-react": "^1.61.0",
 		"react": "^19.2.8",
-		"react-dom": "^19.2.8"
+		"react-dom": "^19.2.8",
+		"react-intlayer": "^9.7.0"
 	},
 	"devDependencies": {
 		"@tanstack/router-plugin": "^1.168.47",
@@ -23,6 +28,7 @@
 		"@types/react-dom": "^19.2.7",
 		"@vitejs/plugin-react": "^6.1.1",
 		"sass-embedded": "^1.105.2",
-		"vite": "^8.3.0"
+		"vite": "^8.3.0",
+		"vite-intlayer": "^9.7.0"
 	}
 }

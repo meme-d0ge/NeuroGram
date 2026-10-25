@@ -1,0 +1,45 @@
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--color-t2);
+}
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 2px solid var(--color-ac);
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  cursor: pointer;
+  color: var(--color-onac);
+
+
+  &[data-checked] {
+    background-color: var(--color-ac);
+    & > .indicator {
+      opacity: 1;
+    }
+  }
+  &[data-focus-visible] {
+    outline: 2px solid var(--color-ac-hover);
+    outline-offset: 2px;
+  }
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  & > svg {
+    width: 100%;
+    height: 100%;
+  }
+}

@@ -1,0 +1,19 @@
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: var(--space-12) var(--space-16);
+
+  @include mobile-s-above {
+    padding: var(--space-12) var(--space-24);
+  }
+  @include mobile-above {
+    padding: var(--space-12) var(--space-32);
+  }
+  @include tablet-above {
+    padding: var(--space-12) var(--space-40);
+  }
+  @include desktop-above {
+    padding: var(--space-12) var(--space-48);
+  }
+}

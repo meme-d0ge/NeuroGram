@@ -1,5 +1,4 @@
 # Logs
-src/app/routeTree.gen.ts
 logs
 *.log
 npm-debug.log*
@@ -23,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Intlayer
+.intlayer

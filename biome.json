@@ -18,7 +18,11 @@
 		}
 	],
 	"files": {
-		"includes": ["**", "!apps/server/drizzle"]
+		"includes": [
+			"**",
+			"!apps/server/drizzle",
+			"!apps/client/src/app/routeTree.gen.ts"
+		]
 	},
 	"javascript": {
 		"parser": {

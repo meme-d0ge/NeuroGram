@@ -76,8 +76,8 @@ body {
   line-height: 1.5;
 }
 
-svg *[fill] { fill: currentColor }
-svg *[stroke] { stroke: currentColor }
+svg:not([data-keep-colors]) *[fill] { fill: currentColor }
+svg:not([data-keep-colors]) *[stroke] { stroke: currentColor }
 
 svg * {
   transition-property: fill, stroke;
