@@ -11,7 +11,7 @@
 .auth-widget__qr-dialog {
   position: fixed;
   inset: var(--space-32);
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-duration);
 
   &[data-starting-style],
   &[data-ending-style] {

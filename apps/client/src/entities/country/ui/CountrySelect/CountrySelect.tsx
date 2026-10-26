@@ -76,7 +76,7 @@ interface CountrySelectProps {
 export const CountrySelect = (props: CountrySelectProps) => {
 	const { back, selectCountry } = useIntlayer("country-select");
 	const { codes, getName } = useCountryNames();
-	const isMobile = useMediaQuery(`(max-width: 767px)`);
+	const isMobile = useMediaQuery(`(max-width: 768px)`);
 	const [open, setOpen] = useState(false);
 
 	return (

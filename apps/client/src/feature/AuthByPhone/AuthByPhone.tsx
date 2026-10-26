@@ -5,7 +5,7 @@ import {
 	parsePhoneNumberWithError,
 } from "libphonenumber-js";
 import { QrCode } from "lucide-react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import {
 	Controller,
 	type SubmitHandler,
@@ -23,6 +23,7 @@ import {
 import { CountrySelect } from "@/entities/country/ui/CountrySelect/CountrySelect.tsx";
 import { PhoneInput } from "@/entities/phone/ui/PhoneInput/PhoneInput.tsx";
 import { BaseCheckBox } from "@/shared/ui/BaseCheckBox/BaseCheckBox.tsx";
+import { FormField } from "@/shared/ui/FormField/FormField.tsx";
 import styles from "./AuthByPhone.module.scss";
 
 const authByPhoneFormSchema = z
@@ -47,8 +48,16 @@ interface AuthByPhoneProps {
 	openQrCode: () => void;
 }
 export const AuthByPhone = (props: AuthByPhoneProps) => {
-	const { title, subtitle, checkbox, qrcode, submit, country, phone } =
-		useIntlayer("auth-by-phone");
+	const {
+		title,
+		subtitle,
+		checkbox,
+		qrcode,
+		submit,
+		country,
+		phone,
+		errorMessages,
+	} = useIntlayer("auth-by-phone");
 
 	const {
 		control,
@@ -61,10 +70,19 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 			country: "RU" as ValidCountryCode,
 			staySignedIn: true,
 		},
+		mode: "onTouched",
 	});
 
 	const countryValue = useWatch({ control, name: "country" });
 	const onSubmit: SubmitHandler<AuthByPhoneForm> = (data) => console.log(data);
+
+	const translateError = useCallback(
+		(code: string | undefined) =>
+			code && Object.hasOwn(errorMessages, code)
+				? errorMessages[code as keyof typeof errorMessages]
+				: errorMessages.UNKNOWN,
+		[errorMessages],
+	);
 
 	useEffect(() => {
 		console.log(errors);
@@ -80,10 +98,11 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 				onSubmit={handleSubmit(onSubmit)}
 				className={styles["auth-phone__form"]}
 			>
-				<div className={styles["auth-phone__form-field"]}>
-					<label className={styles["auth-phone__form-label"]} htmlFor="country">
-						{country}
-					</label>
+				<FormField
+					label={country}
+					htmlFor="country"
+					error={errors.country && translateError(errors.country.message)}
+				>
 					<Controller
 						control={control}
 						name="country"
@@ -96,12 +115,13 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 							/>
 						)}
 					/>
-				</div>
-				<div className={styles["auth-phone__form-field"]}>
-					<label htmlFor="phone" className={styles["auth-phone__form-label"]}>
-						{phone}
-					</label>
+				</FormField>
 
+				<FormField
+					label={phone}
+					htmlFor="phone"
+					error={errors.phone && translateError(errors.phone.message)}
+				>
 					<Controller
 						control={control}
 						name="phone"
@@ -117,11 +137,13 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 							/>
 						)}
 					/>
-				</div>
+				</FormField>
+
 				<Controller
 					control={control}
 					name="staySignedIn"
 					render={({ field }) => (
+						// TODO add staySignedIn functional
 						<BaseCheckBox
 							className={styles["auth-phone__form-checkbox"]}
 							id={"staySignedIn"}
@@ -131,6 +153,7 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 						/>
 					)}
 				/>
+
 				<Button type="submit" className={styles["auth-phone__submit-btn"]}>
 					{submit}
 				</Button>

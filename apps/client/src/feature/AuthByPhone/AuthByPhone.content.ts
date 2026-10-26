@@ -1,6 +1,6 @@
 import { type Dictionary, t } from "intlayer";
 
-const authbyphoneContent = {
+const authByPhoneContent = {
 	key: "auth-by-phone",
 	content: {
 		title: t({
@@ -31,7 +31,18 @@ const authbyphoneContent = {
 			en: "Sign In with a QR Code",
 			ru: "Войти по QR-коду",
 		}),
+		errorMessages: {
+			PHONE_REQUIRED: t({
+				en: "Enter your phone number",
+				ru: "Введите номер телефона",
+			}),
+			PHONE_INVALID: t({
+				en: "Invalid number for the selected country",
+				ru: "Неверный номер для выбранной страны",
+			}),
+			UNKNOWN: t({ en: "Check this field", ru: "Проверьте поле" }),
+		},
 	},
 } satisfies Dictionary;
 
-export default authbyphoneContent;
+export default authByPhoneContent;

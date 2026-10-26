@@ -62,7 +62,7 @@
   color: var(--color-onac);
   font-weight: 600;
   font-size: 16px;
-  transition: 0.2s;
+  transition: var(--transition-duration);
 
   &:not(:disabled):active{
       scale: 0.96;

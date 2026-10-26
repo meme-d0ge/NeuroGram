@@ -11,7 +11,7 @@
   right: var(--space-12);
   bottom: var(--space-12);
   opacity: 1;
-  transition: 0.2s;
+  transition: var(--transition-duration);
 }
 
 .qrcode__img-container {
