@@ -1,16 +1,46 @@
 import { Button } from "@base-ui/react";
-import { QrCode } from "lucide-react";
-import { useState } from "react";
-import { useIntlayer } from "react-intlayer";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
-	type CountryCode,
+	isValidPhoneNumber,
+	parsePhoneNumberWithError,
+} from "libphonenumber-js";
+import { QrCode } from "lucide-react";
+import { useEffect } from "react";
+import {
+	Controller,
+	type SubmitHandler,
+	useForm,
+	useWatch,
+} from "react-hook-form";
+import { useIntlayer } from "react-intlayer";
+import { z } from "zod";
+import {
+	countryCodeSchema,
 	getDialCode,
 	getPhonePlaceholder,
+	type ValidCountryCode,
 } from "@/entities/country/model/countries.ts";
 import { CountrySelect } from "@/entities/country/ui/CountrySelect/CountrySelect.tsx";
 import { PhoneInput } from "@/entities/phone/ui/PhoneInput/PhoneInput.tsx";
 import { BaseCheckBox } from "@/shared/ui/BaseCheckBox/BaseCheckBox.tsx";
 import styles from "./AuthByPhone.module.scss";
+
+const authByPhoneFormSchema = z
+	.object({
+		phone: z.string().trim().min(1, "PHONE_REQUIRED"),
+		country: countryCodeSchema,
+		staySignedIn: z.boolean(),
+	})
+	.refine((data) => isValidPhoneNumber(data.phone, data.country), {
+		path: ["phone"],
+		error: "PHONE_INVALID",
+	})
+	.transform(({ phone, country, staySignedIn }) => ({
+		phone: parsePhoneNumberWithError(phone, country).number,
+		staySignedIn: staySignedIn,
+	}));
+
+type AuthByPhoneForm = z.infer<typeof authByPhoneFormSchema>;
 
 interface AuthByPhoneProps {
 	className?: string;
@@ -19,9 +49,26 @@ interface AuthByPhoneProps {
 export const AuthByPhone = (props: AuthByPhoneProps) => {
 	const { title, subtitle, checkbox, qrcode, submit, country, phone } =
 		useIntlayer("auth-by-phone");
-	// TODO: RHF
-	const [countryCode, setCountryCode] = useState<CountryCode>("RU");
-	const [phoneNumber, setPhoneNumber] = useState<string>("");
+
+	const {
+		control,
+		handleSubmit,
+		formState: { errors },
+	} = useForm({
+		resolver: zodResolver(authByPhoneFormSchema),
+		defaultValues: {
+			phone: "",
+			country: "RU" as ValidCountryCode,
+			staySignedIn: true,
+		},
+	});
+
+	const countryValue = useWatch({ control, name: "country" });
+	const onSubmit: SubmitHandler<AuthByPhoneForm> = (data) => console.log(data);
+
+	useEffect(() => {
+		console.log(errors);
+	}, [errors]);
 
 	return (
 		<div className={`${styles["auth-phone"]} ${props.className ?? ""}`}>
@@ -29,39 +76,60 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 				<p className={styles["auth-phone__head-title"]}>{title}</p>
 				<p className={styles["auth-phone__head-subtitle"]}>{subtitle}</p>
 			</div>
-			<form className={styles["auth-phone__form"]}>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className={styles["auth-phone__form"]}
+			>
 				<div className={styles["auth-phone__form-field"]}>
-					<label
-						className={styles["auth-phone__form-label"]}
-						htmlFor="country-select"
-					>
+					<label className={styles["auth-phone__form-label"]} htmlFor="country">
 						{country}
 					</label>
-					<CountrySelect
-						id="country-select"
-						value={countryCode}
-						onChange={setCountryCode}
+					<Controller
+						control={control}
+						name="country"
+						rules={{ deps: ["phone"] }}
+						render={({ field }) => (
+							<CountrySelect
+								id="country"
+								value={field.value}
+								onChange={field.onChange}
+							/>
+						)}
 					/>
 				</div>
 				<div className={styles["auth-phone__form-field"]}>
-					<label
-						htmlFor="phone-input"
-						className={styles["auth-phone__form-label"]}
-					>
+					<label htmlFor="phone" className={styles["auth-phone__form-label"]}>
 						{phone}
 					</label>
-					<PhoneInput
-						id="phone-input"
-						prefix={getDialCode(countryCode)}
-						placeholder={getPhonePlaceholder(countryCode)}
-						defaultValue={phoneNumber}
-						onValueChange={setPhoneNumber}
+
+					<Controller
+						control={control}
+						name="phone"
+						render={({ field }) => (
+							<PhoneInput
+								id="phone"
+								prefix={getDialCode(countryValue)}
+								placeholder={getPhonePlaceholder(countryValue)}
+								value={field.value}
+								onValueChange={field.onChange}
+								onBlur={field.onBlur}
+								ref={field.ref}
+							/>
+						)}
 					/>
 				</div>
-				<BaseCheckBox
-					className={styles["auth-phone__form-checkbox"]}
-					id={"not-logout-checkbox"}
-					text={checkbox}
+				<Controller
+					control={control}
+					name="staySignedIn"
+					render={({ field }) => (
+						<BaseCheckBox
+							className={styles["auth-phone__form-checkbox"]}
+							id={"staySignedIn"}
+							text={checkbox}
+							checked={field.value}
+							onCheckedChange={field.onChange}
+						/>
+					)}
 				/>
 				<Button type="submit" className={styles["auth-phone__submit-btn"]}>
 					{submit}
