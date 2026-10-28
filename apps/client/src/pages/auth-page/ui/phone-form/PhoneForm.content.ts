@@ -1,7 +1,7 @@
 import { type Dictionary, t } from "intlayer";
 
-const authByPhoneContent = {
-	key: "auth-by-phone",
+const phoneFormContent = {
+	key: "phone-form",
 	content: {
 		title: t({
 			en: "Sign In with Phone Number",
@@ -27,10 +27,6 @@ const authByPhoneContent = {
 			en: "Submit",
 			ru: "Далее",
 		}),
-		qrcode: t({
-			en: "Sign In with a QR Code",
-			ru: "Войти по QR-коду",
-		}),
 		errorMessages: {
 			PHONE_REQUIRED: t({
 				en: "Enter your phone number",
@@ -45,4 +41,4 @@ const authByPhoneContent = {
 	},
 } satisfies Dictionary;
 
-export default authByPhoneContent;
+export default phoneFormContent;

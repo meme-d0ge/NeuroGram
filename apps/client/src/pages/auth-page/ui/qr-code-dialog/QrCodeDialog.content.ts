@@ -1,13 +1,13 @@
 import { type Dictionary, t } from "intlayer";
 
-const authWidgetContent = {
-	key: "auth-widget",
+const qrCodeDialogContent = {
+	key: "qr-code-dialog",
 	content: {
 		close: t({
-			en: "Close",
 			ru: "Закрыть",
+			en: "Close",
 		}),
 	},
 } satisfies Dictionary;
 
-export default authWidgetContent;
+export default qrCodeDialogContent;

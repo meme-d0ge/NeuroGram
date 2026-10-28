@@ -1,6 +1,6 @@
 import { Logo } from "@/shared/ui/Logo/Logo.tsx";
-import styles from "./AuthHeader.module.scss";
-export const AuthHeader = () => {
+import styles from "./Header.module.scss";
+export const Header = () => {
 	return (
 		<header className={styles.header}>
 			<Logo />

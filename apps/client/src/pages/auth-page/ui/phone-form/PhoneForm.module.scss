@@ -1,4 +1,4 @@
-.auth-phone {
+.phone-form {
   border-radius: var(--radius-lg);
   padding: var(--space-32);
   display: flex;
@@ -6,36 +6,36 @@
   gap: var(--space-16);
   background: var(--color-s1);
 }
-.auth-phone__head {
+.phone-form__head {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
 }
-.auth-phone__head-title {
+.phone-form__head-title {
   color: var(--color-t1);
   font-size: 26px;
   font-weight: 600;
   letter-spacing: -0.52px;
 }
-.auth-phone__head-subtitle {
+.phone-form__head-subtitle {
   color: var(--color-t2);
   font-size: 14px;
   font-weight: 400;
 }
 
 
-.auth-phone__form {
+.phone-form__form {
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
 }
-.auth-phone__form-field {
+.phone-form__form-field {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
 }
-.auth-phone__form-label {
+.phone-form__form-label {
   width: max-content;
   margin-left: var(--space-20);
   font-size: 12px;
@@ -43,18 +43,18 @@
   color: var(--color-t3);
 }
 
-.auth-phone__form-phone {
+.phone-form__form-phone {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
 }
 
-.auth-phone__form-checkbox {
+.phone-form__form-checkbox {
   padding-block: var(--space-12);
 }
 
-.auth-phone__submit-btn {
+.phone-form__submit-btn {
   @include reset-button;
   height: 52px;
   border-radius: var(--radius-pill);
@@ -70,29 +70,5 @@
   &:disabled {
     background-color: var(--color-s3);
     color: var(--color-t3);
-  }
-}
-.auth-phone__qrcode-btn {
-  @include reset-button;
-  width: 100%;
-  padding: var(--space-12);
-
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-8);
-
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--color-ac);
-
-  &:hover {
-    text-decoration: underline;
-    cursor: pointer;
-  }
-
-  @include mobile-above {
-    @include visually-hidden;
   }
 }

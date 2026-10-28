@@ -4,8 +4,7 @@ import {
 	isValidPhoneNumber,
 	parsePhoneNumberWithError,
 } from "libphonenumber-js";
-import { QrCode } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import { type ReactNode, useCallback } from "react";
 import {
 	Controller,
 	type SubmitHandler,
@@ -24,9 +23,9 @@ import { CountrySelect } from "@/entities/country/ui/CountrySelect/CountrySelect
 import { PhoneInput } from "@/entities/phone/ui/PhoneInput/PhoneInput.tsx";
 import { BaseCheckBox } from "@/shared/ui/BaseCheckBox/BaseCheckBox.tsx";
 import { FormField } from "@/shared/ui/FormField/FormField.tsx";
-import styles from "./AuthByPhone.module.scss";
+import styles from "./PhoneForm.module.scss";
 
-const authByPhoneFormSchema = z
+const phoneFormSchema = z
 	.object({
 		phone: z.string().trim().min(1, "PHONE_REQUIRED"),
 		country: countryCodeSchema,
@@ -41,30 +40,22 @@ const authByPhoneFormSchema = z
 		staySignedIn: staySignedIn,
 	}));
 
-type AuthByPhoneForm = z.infer<typeof authByPhoneFormSchema>;
+export type TPhoneForm = z.infer<typeof phoneFormSchema>;
 
 interface AuthByPhoneProps {
 	className?: string;
-	openQrCode: () => void;
+	onSubmit: SubmitHandler<TPhoneForm>;
+	footer?: ReactNode;
 }
-export const AuthByPhone = (props: AuthByPhoneProps) => {
-	const {
-		title,
-		subtitle,
-		checkbox,
-		qrcode,
-		submit,
-		country,
-		phone,
-		errorMessages,
-	} = useIntlayer("auth-by-phone");
+export const PhoneForm = (props: AuthByPhoneProps) => {
+	const translate = useIntlayer("phone-form");
 
 	const {
 		control,
 		handleSubmit,
 		formState: { errors },
 	} = useForm({
-		resolver: zodResolver(authByPhoneFormSchema),
+		resolver: zodResolver(phoneFormSchema),
 		defaultValues: {
 			phone: "",
 			country: "RU" as ValidCountryCode,
@@ -74,32 +65,28 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 	});
 
 	const countryValue = useWatch({ control, name: "country" });
-	const onSubmit: SubmitHandler<AuthByPhoneForm> = (data) => console.log(data);
-
 	const translateError = useCallback(
 		(code: string | undefined) =>
-			code && Object.hasOwn(errorMessages, code)
-				? errorMessages[code as keyof typeof errorMessages]
-				: errorMessages.UNKNOWN,
-		[errorMessages],
+			code && Object.hasOwn(translate.errorMessages, code)
+				? translate.errorMessages[code as keyof typeof translate.errorMessages]
+				: translate.errorMessages.UNKNOWN,
+		[translate.errorMessages],
 	);
 
-	useEffect(() => {
-		console.log(errors);
-	}, [errors]);
-
 	return (
-		<div className={`${styles["auth-phone"]} ${props.className ?? ""}`}>
-			<div className={styles["auth-phone__head"]}>
-				<p className={styles["auth-phone__head-title"]}>{title}</p>
-				<p className={styles["auth-phone__head-subtitle"]}>{subtitle}</p>
+		<div className={`${styles["phone-form"]} ${props.className ?? ""}`}>
+			<div className={styles["phone-form__head"]}>
+				<p className={styles["phone-form__head-title"]}>{translate.title}</p>
+				<p className={styles["phone-form__head-subtitle"]}>
+					{translate.subtitle}
+				</p>
 			</div>
 			<form
-				onSubmit={handleSubmit(onSubmit)}
-				className={styles["auth-phone__form"]}
+				onSubmit={handleSubmit(props.onSubmit)}
+				className={styles["phone-form__form"]}
 			>
 				<FormField
-					label={country}
+					label={translate.country}
 					htmlFor="country"
 					error={errors.country && translateError(errors.country.message)}
 				>
@@ -118,7 +105,7 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 				</FormField>
 
 				<FormField
-					label={phone}
+					label={translate.phone}
 					htmlFor="phone"
 					error={errors.phone && translateError(errors.phone.message)}
 				>
@@ -145,27 +132,21 @@ export const AuthByPhone = (props: AuthByPhoneProps) => {
 					render={({ field }) => (
 						// TODO add staySignedIn functional
 						<BaseCheckBox
-							className={styles["auth-phone__form-checkbox"]}
+							className={styles["phone-form__form-checkbox"]}
 							id={"staySignedIn"}
-							text={checkbox}
+							text={translate.checkbox}
 							checked={field.value}
 							onCheckedChange={field.onChange}
 						/>
 					)}
 				/>
 
-				<Button type="submit" className={styles["auth-phone__submit-btn"]}>
-					{submit}
+				<Button type="submit" className={styles["phone-form__submit-btn"]}>
+					{translate.submit}
 				</Button>
 			</form>
 
-			<Button
-				onClick={props.openQrCode}
-				className={styles["auth-phone__qrcode-btn"]}
-			>
-				<QrCode />
-				<span>{qrcode}</span>
-			</Button>
+			{props.footer}
 		</div>
 	);
 };

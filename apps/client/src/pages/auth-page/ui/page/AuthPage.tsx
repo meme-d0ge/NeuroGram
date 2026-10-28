@@ -1,13 +1,13 @@
-import { AuthHeader } from "@/widgets/AuthHeader/AuthHeader.tsx";
-import { AuthWidget } from "@/widgets/AuthWidget/AuthWidget.tsx";
+import { Header } from "@/pages/auth-page/ui/header/Header.tsx";
+import { PhoneStep } from "@/pages/auth-page/ui/phone-step/PhoneStep.tsx";
 import styles from "./AuthPage.module.scss";
 
 export const AuthPage = () => {
 	return (
 		<div className={styles.auth}>
-			<AuthHeader />
+			<Header />
 			<main className={styles.auth__main}>
-				<AuthWidget />
+				<PhoneStep />
 			</main>
 		</div>
 	);

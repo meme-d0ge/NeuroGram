@@ -1,7 +1,7 @@
 import { type Dictionary, t } from "intlayer";
 
-const authByQrContent = {
-	key: "auth-by-qr-code",
+const qrCodeSignInContent = {
+	key: "qr-code-sign-in",
 	content: {
 		title: t({
 			en: "Sign In with a QR Code",
@@ -24,4 +24,4 @@ const authByQrContent = {
 	},
 } satisfies Dictionary;
 
-export default authByQrContent;
+export default qrCodeSignInContent;
