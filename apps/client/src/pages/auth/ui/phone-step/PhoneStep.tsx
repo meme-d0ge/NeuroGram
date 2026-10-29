@@ -8,14 +8,14 @@ import {
 } from "@/pages/auth/ui/phone-form/PhoneForm.tsx";
 import { QrCodeDialog } from "@/pages/auth/ui/qr-code-dialog/QrCodeDialog.tsx";
 import { QrCodeSignIn } from "@/pages/auth/ui/qr-code-sign-in/QrCodeSignIn.tsx";
-import { useMediaQuery } from "@/shared/lib/useMediaQuery.ts";
+import { useIsMobile } from "@/shared/lib/breakpoints.ts";
 import styles from "./PhoneStep.module.scss";
 
 export const PhoneStep = () => {
 	const translate = useIntlayer("phone-step");
 
 	const [isOpenQrCode, setIsOpenQrCode] = useState<boolean>(false);
-	const isMobile = useMediaQuery("(max-width: 768px)");
+	const isMobile = useIsMobile();
 
 	const onOpenChange = useCallback((value: boolean) => {
 		setIsOpenQrCode(value);

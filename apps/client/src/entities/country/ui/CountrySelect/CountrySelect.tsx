@@ -9,7 +9,7 @@ import {
 	getDialCode,
 } from "@/entities/country/model/countries.ts";
 import { CountryFlag } from "@/entities/country/ui/CountryFlag/CountryFlag.tsx";
-import { useMediaQuery } from "@/shared/lib/useMediaQuery.ts";
+import { useIsMobile } from "@/shared/lib/breakpoints.ts";
 import styles from "./CountrySelect.module.scss";
 
 const CountryList = () => {
@@ -76,7 +76,7 @@ interface CountrySelectProps {
 export const CountrySelect = (props: CountrySelectProps) => {
 	const { back, selectCountry } = useIntlayer("country-select");
 	const { codes, getName } = useCountryNames();
-	const isMobile = useMediaQuery(`(max-width: 768px)`);
+	const isMobile = useIsMobile();
 	const [open, setOpen] = useState(false);
 
 	return (
