@@ -14,15 +14,15 @@ import {
 import { useIntlayer } from "react-intlayer";
 import { z } from "zod";
 import {
+	CountrySelect,
 	countryCodeSchema,
 	getDialCode,
 	getPhonePlaceholder,
 	type ValidCountryCode,
-} from "@/entities/country/model/countries.ts";
-import { CountrySelect } from "@/entities/country/ui/CountrySelect/CountrySelect.tsx";
+} from "@/entities/country";
 import { PhoneInput } from "@/entities/phone";
-import { BaseCheckBox } from "@/shared/ui/BaseCheckBox/ui/BaseCheckBox.tsx";
-import { FormField } from "@/shared/ui/FormField/ui/FormField.tsx";
+import { BaseCheckBox } from "@/shared/ui/BaseCheckBox";
+import { FormField } from "@/shared/ui/FormField";
 import styles from "./PhoneForm.module.scss";
 
 const phoneFormSchema = z

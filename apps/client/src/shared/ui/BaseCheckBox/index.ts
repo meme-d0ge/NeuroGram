@@ -1,1 +1,1 @@
-export { BaseCheckBox } from "./ui/BaseCheckBox.tsx";
+export { BaseCheckBox } from "./BaseCheckBox.tsx";

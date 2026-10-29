@@ -1,1 +1,1 @@
-export { Logo } from "./ui/Logo.tsx";
+export { Logo } from "./Logo.tsx";
