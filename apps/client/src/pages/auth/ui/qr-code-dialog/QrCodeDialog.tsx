@@ -13,7 +13,7 @@ export const QrCodeDialog = (props: QrCodeDialogProps) => {
 	return (
 		<Dialog.Root open={props.open} onOpenChange={props.onOpenChange}>
 			<Dialog.Portal>
-				<Dialog.Backdrop />
+				<Dialog.Backdrop className={styles.qr__backdrop} />
 				<Dialog.Popup className={styles.qr__dialog}>
 					<Dialog.Close className={styles.qr__close} aria-label={close}>
 						<X />
