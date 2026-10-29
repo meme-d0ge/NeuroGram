@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { useIntlayer } from "react-intlayer";
 import {
 	PhoneForm,
-	type TPhoneForm,
+	type PhoneFormOutput,
 } from "@/pages/auth-page/ui/phone-form/PhoneForm.tsx";
 import { QrCodeDialog } from "@/pages/auth-page/ui/qr-code-dialog/QrCodeDialog.tsx";
 import { QrCodeSignIn } from "@/pages/auth-page/ui/qr-code-sign-in/QrCodeSignIn.tsx";
@@ -24,7 +24,7 @@ export const PhoneStep = () => {
 		setIsOpenQrCode(true);
 	}, []);
 
-	const onSubmitPhoneForm = useCallback((value: TPhoneForm) => {
+	const onSubmitPhoneForm = useCallback((value: PhoneFormOutput) => {
 		console.log(value);
 	}, []);
 
@@ -42,7 +42,7 @@ export const PhoneStep = () => {
 					isMobile && (
 						<Button
 							onClick={openQrCode}
-							className={styles["phone-step__dialog-close"]}
+							className={styles["phone-step__qr-button"]}
 						>
 							<QrCode />
 							<span>{translate.qrcode}</span>

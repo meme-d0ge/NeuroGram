@@ -40,14 +40,14 @@ const phoneFormSchema = z
 		staySignedIn: staySignedIn,
 	}));
 
-export type TPhoneForm = z.infer<typeof phoneFormSchema>;
+export type PhoneFormOutput = z.infer<typeof phoneFormSchema>;
 
-interface AuthByPhoneProps {
+interface PhoneFormProps {
 	className?: string;
-	onSubmit: SubmitHandler<TPhoneForm>;
+	onSubmit: SubmitHandler<PhoneFormOutput>;
 	footer?: ReactNode;
 }
-export const PhoneForm = (props: AuthByPhoneProps) => {
+export const PhoneForm = (props: PhoneFormProps) => {
 	const translate = useIntlayer("phone-form");
 
 	const {

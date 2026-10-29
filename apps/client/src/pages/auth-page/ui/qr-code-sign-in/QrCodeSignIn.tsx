@@ -2,10 +2,10 @@ import { useIntlayer } from "react-intlayer";
 import qrcode from "./img/qr_code.png";
 import styles from "./QrCodeSignIn.module.scss";
 
-export interface QrCodeProps {
+export interface QrCodeSignInProps {
 	className?: string;
 }
-export const QrCodeSignIn = (props: QrCodeProps) => {
+export const QrCodeSignIn = (props: QrCodeSignInProps) => {
 	const translate = useIntlayer("qr-code-sign-in");
 
 	return (
