@@ -17,13 +17,6 @@ export const PhoneStep = () => {
 	const [isOpenQrCode, setIsOpenQrCode] = useState<boolean>(false);
 	const isMobile = useIsMobile();
 
-	const onOpenChange = useCallback((value: boolean) => {
-		setIsOpenQrCode(value);
-	}, []);
-	const openQrCode = useCallback(() => {
-		setIsOpenQrCode(true);
-	}, []);
-
 	const onSubmitPhoneForm = useCallback((value: PhoneFormOutput) => {
 		console.log(value);
 	}, []);
@@ -31,7 +24,7 @@ export const PhoneStep = () => {
 	return (
 		<div className={styles["phone-step__content"]}>
 			{isMobile ? (
-				<QrCodeDialog onOpenChange={onOpenChange} open={isOpenQrCode} />
+				<QrCodeDialog onOpenChange={setIsOpenQrCode} open={isOpenQrCode} />
 			) : (
 				<QrCodeSignIn />
 			)}
@@ -41,7 +34,7 @@ export const PhoneStep = () => {
 				footer={
 					isMobile && (
 						<Button
-							onClick={openQrCode}
+							onClick={() => setIsOpenQrCode(true)}
 							className={styles["phone-step__qr-button"]}
 						>
 							<QrCode />

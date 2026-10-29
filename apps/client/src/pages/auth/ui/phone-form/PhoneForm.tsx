@@ -1,5 +1,6 @@
 import { Button } from "@base-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { clsx } from "clsx";
 import {
 	isValidPhoneNumber,
 	parsePhoneNumberWithError,
@@ -76,7 +77,7 @@ export const PhoneForm = (props: PhoneFormProps) => {
 	);
 
 	return (
-		<div className={`${styles["phone-form"]} ${props.className ?? ""}`}>
+		<div className={clsx(styles["phone-form"], props.className)}>
 			<div className={styles["phone-form__head"]}>
 				<p className={styles["phone-form__head-title"]}>{translate.title}</p>
 				<p className={styles["phone-form__head-subtitle"]}>

@@ -1,7 +1,7 @@
 .qrcode {
   border-radius:  var(--radius-lg);
   background: var(--color-s1);
-  padding: var(--space-32);
+  padding: var(--card-padding);
   display: flex;
   flex-direction: column;
   gap: var(--space-24);

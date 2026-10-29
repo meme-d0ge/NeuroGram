@@ -1,3 +1,4 @@
+import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import styles from "./FormField.module.scss";
 
@@ -16,10 +17,13 @@ export const FormField = ({
 	className,
 	children,
 }: FormFieldProps) => (
-	<div className={`${styles["form-field"]} ${className ?? ""}`}>
+	<div className={clsx(styles["form-field"], className)}>
 		<label
 			htmlFor={htmlFor}
-			className={`${styles["form-field__label"]} ${error ? styles["form-field__label--error"] : ""}`}
+			className={clsx(
+				styles["form-field__label"],
+				error && styles["form-field__label--error"],
+			)}
 		>
 			{label}
 		</label>

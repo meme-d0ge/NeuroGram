@@ -1,6 +1,6 @@
 .phone-step__content {
   display: grid;
-  max-width: 820px;
+  max-width: var(--auth-max);
   width: 100%;
   @include mobile-above {
     gap: var(--space-16);
