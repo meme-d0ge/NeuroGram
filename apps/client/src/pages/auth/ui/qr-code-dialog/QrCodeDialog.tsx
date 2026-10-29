@@ -1,7 +1,7 @@
 import { Dialog } from "@base-ui/react";
 import { X } from "lucide-react";
 import { useIntlayer } from "react-intlayer";
-import { QrCodeSignIn } from "@/pages/auth-page/ui/qr-code-sign-in/QrCodeSignIn.tsx";
+import { QrCodeSignIn } from "@/pages/auth/ui/qr-code-sign-in/QrCodeSignIn.tsx";
 import styles from "./QrCodeDialog.module.scss";
 
 interface QrCodeDialogProps

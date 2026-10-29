@@ -20,9 +20,9 @@ import {
 	type ValidCountryCode,
 } from "@/entities/country/model/countries.ts";
 import { CountrySelect } from "@/entities/country/ui/CountrySelect/CountrySelect.tsx";
-import { PhoneInput } from "@/entities/phone/ui/PhoneInput/PhoneInput.tsx";
-import { BaseCheckBox } from "@/shared/ui/BaseCheckBox/BaseCheckBox.tsx";
-import { FormField } from "@/shared/ui/FormField/FormField.tsx";
+import { PhoneInput } from "@/entities/phone";
+import { BaseCheckBox } from "@/shared/ui/BaseCheckBox/ui/BaseCheckBox.tsx";
+import { FormField } from "@/shared/ui/FormField/ui/FormField.tsx";
 import styles from "./PhoneForm.module.scss";
 
 const phoneFormSchema = z

@@ -22,6 +22,6 @@ export const getPhonePlaceholder = (code: CountryCode) => {
 		.replace(/\d/g, "0");
 };
 
-const countries = getCountries() as CountryCode[];
+export const countries = getCountries() as CountryCode[];
 export const countryCodeSchema = z.enum(countries);
 export type ValidCountryCode = z.infer<typeof countryCodeSchema>;

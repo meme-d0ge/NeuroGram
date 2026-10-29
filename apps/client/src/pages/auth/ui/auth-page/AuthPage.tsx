@@ -1,5 +1,5 @@
-import { Header } from "@/pages/auth-page/ui/header/Header.tsx";
-import { PhoneStep } from "@/pages/auth-page/ui/phone-step/PhoneStep.tsx";
+import { Header } from "@/pages/auth/ui/header/Header.tsx";
+import { PhoneStep } from "@/pages/auth/ui/phone-step/PhoneStep.tsx";
 import styles from "./AuthPage.module.scss";
 
 export const AuthPage = () => {

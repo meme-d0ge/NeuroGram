@@ -5,9 +5,9 @@ import { useIntlayer } from "react-intlayer";
 import {
 	PhoneForm,
 	type PhoneFormOutput,
-} from "@/pages/auth-page/ui/phone-form/PhoneForm.tsx";
-import { QrCodeDialog } from "@/pages/auth-page/ui/qr-code-dialog/QrCodeDialog.tsx";
-import { QrCodeSignIn } from "@/pages/auth-page/ui/qr-code-sign-in/QrCodeSignIn.tsx";
+} from "@/pages/auth/ui/phone-form/PhoneForm.tsx";
+import { QrCodeDialog } from "@/pages/auth/ui/qr-code-dialog/QrCodeDialog.tsx";
+import { QrCodeSignIn } from "@/pages/auth/ui/qr-code-sign-in/QrCodeSignIn.tsx";
 import { useMediaQuery } from "@/shared/lib/useMediaQuery.ts";
 import styles from "./PhoneStep.module.scss";
 
