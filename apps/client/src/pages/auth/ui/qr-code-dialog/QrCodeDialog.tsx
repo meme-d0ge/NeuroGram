@@ -18,7 +18,7 @@ export const QrCodeDialog = (props: QrCodeDialogProps) => {
 					<Dialog.Close className={styles.qr__close} aria-label={close}>
 						<X />
 					</Dialog.Close>
-					<QrCodeSignIn className={styles.qr__body} />
+					<QrCodeSignIn />
 				</Dialog.Popup>
 			</Dialog.Portal>
 		</Dialog.Root>

@@ -21,10 +21,6 @@
   }
 }
 
-.qr__body {
-  height: 100%;
-}
-
 .qr__close {
   @include reset-button;
   background-color: var(--color-s2);

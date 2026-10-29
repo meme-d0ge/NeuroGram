@@ -1,16 +1,9 @@
 import { type Dictionary, t } from "intlayer";
+import type { PhoneFormErrorCode } from "@/pages/auth/model/phone-form.ts";
 
 const phoneFormContent = {
 	key: "phone-form",
 	content: {
-		title: t({
-			en: "Sign In with Phone Number",
-			ru: "Вход по номеру",
-		}),
-		subtitle: t({
-			en: "We'll send a code to the app or via text message",
-			ru: "Отправим код в приложение или по СМС",
-		}),
 		country: t({
 			en: "Country",
 			ru: "Страна",
@@ -37,7 +30,7 @@ const phoneFormContent = {
 				ru: "Неверный номер для выбранной страны",
 			}),
 			UNKNOWN: t({ en: "Check this field", ru: "Проверьте поле" }),
-		},
+		} satisfies Record<PhoneFormErrorCode | "UNKNOWN", unknown>,
 	},
 } satisfies Dictionary;
 

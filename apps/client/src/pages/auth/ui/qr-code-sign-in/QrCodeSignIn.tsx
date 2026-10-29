@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import { useIntlayer } from "react-intlayer";
+import { Card } from "@/shared/ui/Card";
 import qrcode from "./img/qr_code.png";
 import styles from "./QrCodeSignIn.module.scss";
 
@@ -10,7 +11,7 @@ export const QrCodeSignIn = (props: QrCodeSignInProps) => {
 	const translate = useIntlayer("qr-code-sign-in");
 
 	return (
-		<div className={clsx(styles.qrcode, props.className)}>
+		<Card className={clsx(styles.qrcode, props.className)}>
 			<div className={styles["qrcode__img-container"]}>
 				<img src={qrcode} alt="qrcode" />
 				{/* TODO real qrcode auth */}
@@ -25,6 +26,6 @@ export const QrCodeSignIn = (props: QrCodeSignInProps) => {
 					))}
 				</ol>
 			</div>
-		</div>
+		</Card>
 	);
 };

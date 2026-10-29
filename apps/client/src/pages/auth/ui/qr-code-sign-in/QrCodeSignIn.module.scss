@@ -1,15 +1,9 @@
 .qrcode {
-  border-radius:  var(--radius-lg);
-  background: var(--color-s1);
-  padding: var(--card-padding);
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-24);
 
-  top: var(--space-12);
-  left: var(--space-12);
-  right: var(--space-12);
-  bottom: var(--space-12);
   opacity: 1;
   transition: var(--transition-duration);
 }

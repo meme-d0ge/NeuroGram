@@ -1,10 +1,7 @@
 .phone-form {
-  border-radius: var(--radius-lg);
-  padding: var(--card-padding);
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
-  background: var(--color-s1);
 }
 .phone-form__head {
   display: flex;
