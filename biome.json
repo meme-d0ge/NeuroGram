@@ -15,6 +15,168 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["apps/client/src/shared/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": [
+											"@/app/**",
+											"@/pages/**",
+											"@/widgets/**",
+											"@/features/**",
+											"@/entities/**"
+										],
+										"message": "FSD: shared can't import from upper layers."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["apps/client/src/entities/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": [
+											"@/app/**",
+											"@/pages/**",
+											"@/widgets/**",
+											"@/features/**"
+										],
+										"message": "FSD: entities can't import from upper layers."
+									},
+									{
+										"group": ["@/shared/*/*/**"],
+										"message": "FSD: import through the public API (index.ts)."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["apps/client/src/features/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["@/app/**", "@/pages/**", "@/widgets/**"],
+										"message": "FSD: features can't import from upper layers."
+									},
+									{
+										"group": ["@/entities/*/**", "@/shared/*/*/**"],
+										"message": "FSD: import through the public API (index.ts)."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["apps/client/src/widgets/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["@/app/**", "@/pages/**"],
+										"message": "FSD: widgets can't import from upper layers."
+									},
+									{
+										"group": [
+											"@/features/*/**",
+											"@/entities/*/**",
+											"@/shared/*/*/**"
+										],
+										"message": "FSD: import through the public API (index.ts)."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["apps/client/src/pages/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["@/app/**"],
+										"message": "FSD: pages can't import from upper layers."
+									},
+									{
+										"group": [
+											"@/widgets/*/**",
+											"@/features/*/**",
+											"@/entities/*/**",
+											"@/shared/*/*/**"
+										],
+										"message": "FSD: import through the public API (index.ts)."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["apps/client/src/app/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": [
+											"@/pages/*/**",
+											"@/widgets/*/**",
+											"@/features/*/**",
+											"@/entities/*/**",
+											"@/shared/*/*/**"
+										],
+										"message": "FSD: import through the public API (index.ts)."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
 		}
 	],
 	"files": {

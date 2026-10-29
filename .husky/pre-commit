@@ -1,4 +1,5 @@
 bun run check
 bun run check-types
+bun run check-fsd
 bun run check:fix
 bun run test

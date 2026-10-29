@@ -7,7 +7,8 @@
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"preview": "vite preview",
-		"check-types": "tsc -b"
+		"check-types": "tsc -b",
+		"check-fsd": "steiger ./src"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.9.0",
@@ -25,12 +26,14 @@
 		"zod": "^4.6.7"
 	},
 	"devDependencies": {
+		"@feature-sliced/steiger-plugin": "^0.8.1",
 		"@tanstack/router-plugin": "^1.168.47",
 		"@types/node": "^24.13.3",
 		"@types/react": "^19.2.18",
 		"@types/react-dom": "^19.2.7",
 		"@vitejs/plugin-react": "^6.1.1",
 		"sass-embedded": "^1.105.2",
+		"steiger": "^0.8.1",
 		"vite": "^8.3.0",
 		"vite-intlayer": "^9.7.0"
 	}
