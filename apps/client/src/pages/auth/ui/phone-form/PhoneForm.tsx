@@ -18,7 +18,6 @@ import {
 	countryCodeSchema,
 	getDialCode,
 	getPhonePlaceholder,
-	type ValidCountryCode,
 } from "@/entities/country";
 import { PhoneInput } from "@/entities/phone";
 import { BaseCheckBox } from "@/shared/ui/BaseCheckBox";
@@ -40,7 +39,14 @@ const phoneFormSchema = z
 		staySignedIn: staySignedIn,
 	}));
 
-export type PhoneFormOutput = z.infer<typeof phoneFormSchema>;
+export type PhoneFormValues = z.input<typeof phoneFormSchema>;
+export type PhoneFormOutput = z.output<typeof phoneFormSchema>;
+
+export const phoneFormDefaults: PhoneFormValues = {
+	phone: "",
+	country: "RU",
+	staySignedIn: true,
+};
 
 interface PhoneFormProps {
 	className?: string;
@@ -56,11 +62,7 @@ export const PhoneForm = (props: PhoneFormProps) => {
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(phoneFormSchema),
-		defaultValues: {
-			phone: "",
-			country: "RU" as ValidCountryCode,
-			staySignedIn: true,
-		},
+		defaultValues: phoneFormDefaults,
 		mode: "onTouched",
 	});
 

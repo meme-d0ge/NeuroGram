@@ -4,11 +4,10 @@ import { useIntlayer } from "react-intlayer";
 import { QrCodeSignIn } from "@/pages/auth/ui/qr-code-sign-in/QrCodeSignIn.tsx";
 import styles from "./QrCodeDialog.module.scss";
 
-interface QrCodeDialogProps
-	extends Pick<
-		React.ComponentProps<typeof Dialog.Root>,
-		"open" | "onOpenChange"
-	> {}
+interface QrCodeDialogProps {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+}
 export const QrCodeDialog = (props: QrCodeDialogProps) => {
 	const { close } = useIntlayer("qr-code-dialog");
 	return (
