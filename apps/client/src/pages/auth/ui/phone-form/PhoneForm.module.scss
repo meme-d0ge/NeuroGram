@@ -39,6 +39,9 @@
 
 .phone-form__submit-btn {
   @include reset-button;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 52px;
   border-radius: var(--radius-pill);
   background-color: var(--color-ac);
@@ -53,5 +56,19 @@
   &:disabled {
     background-color: var(--color-s3);
     color: var(--color-t3);
+  }
+}
+.phone-form__submit-btn-loader {
+  width: 30px;
+  height: 30px;
+  animation: rotation 2s linear infinite;
+
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 }

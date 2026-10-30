@@ -30,7 +30,7 @@ const phoneFormContent = {
 				ru: "Неверный номер для выбранной страны",
 			}),
 			UNKNOWN: t({ en: "Check this field", ru: "Проверьте поле" }),
-		} satisfies Record<PhoneFormErrorCode | "UNKNOWN", unknown>,
+		} satisfies Record<PhoneFormErrorCode, unknown>,
 	},
 } satisfies Dictionary;
 

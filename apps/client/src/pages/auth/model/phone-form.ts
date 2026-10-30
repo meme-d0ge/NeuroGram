@@ -8,9 +8,15 @@ import { countryCodeSchema } from "@/entities/country";
 export const PhoneFormErrorCode = {
 	PHONE_REQUIRED: "PHONE_REQUIRED",
 	PHONE_INVALID: "PHONE_INVALID",
+	UNKNOWN: "UNKNOWN",
 } as const;
 export type PhoneFormErrorCode =
 	(typeof PhoneFormErrorCode)[keyof typeof PhoneFormErrorCode];
+
+export interface PhoneFormSubmitError {
+	field: "phone" | "root";
+	code: PhoneFormErrorCode;
+}
 
 export const phoneFormSchema = z
 	.object({

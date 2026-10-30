@@ -1,12 +1,8 @@
 import { Button } from "@base-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
-import {
-	Controller,
-	type SubmitHandler,
-	useForm,
-	useWatch,
-} from "react-hook-form";
+import { LoaderCircle } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useIntlayer } from "react-intlayer";
 import {
 	CountrySelect,
@@ -19,19 +15,21 @@ import { FormField } from "@/shared/ui/FormField";
 import {
 	PHONE_FORM_DEFAULTS,
 	type PhoneFormOutput,
+	type PhoneFormSubmitError,
 	phoneFormSchema,
 } from "../../model/phone-form.ts";
 import styles from "./PhoneForm.module.scss";
 
 interface PhoneFormProps {
 	className?: string;
-	onSubmit: SubmitHandler<PhoneFormOutput>;
+	onSubmit: (value: PhoneFormOutput) => Promise<PhoneFormSubmitError | null>;
 }
 export const PhoneForm = (props: PhoneFormProps) => {
 	const translate = useIntlayer("phone-form");
 	const {
 		control,
 		handleSubmit,
+		setError,
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(phoneFormSchema),
@@ -39,6 +37,7 @@ export const PhoneForm = (props: PhoneFormProps) => {
 		mode: "onTouched",
 	});
 	const countryValue = useWatch({ control, name: "country" });
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const translateError = useCallback(
 		(code: string | undefined) =>
@@ -50,7 +49,15 @@ export const PhoneForm = (props: PhoneFormProps) => {
 
 	return (
 		<form
-			onSubmit={handleSubmit(props.onSubmit)}
+			onSubmit={handleSubmit(async (values) => {
+				setIsLoading(true);
+				const error = await props.onSubmit(values);
+				setIsLoading(false);
+				if (!error) return;
+				setError(error.field === "root" ? "root.server" : error.field, {
+					message: error.code,
+				});
+			})}
 			className={styles["phone-form__form"]}
 		>
 			<FormField
@@ -110,7 +117,10 @@ export const PhoneForm = (props: PhoneFormProps) => {
 			/>
 
 			<Button type="submit" className={styles["phone-form__submit-btn"]}>
-				{translate.submit}
+				{!isLoading && translate.submit}
+				{isLoading && (
+					<LoaderCircle className={styles["phone-form__submit-btn-loader"]} />
+				)}
 			</Button>
 		</form>
 	);

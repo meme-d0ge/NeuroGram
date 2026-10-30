@@ -27,4 +27,9 @@
   &::placeholder {
     color: var(--color-t3);
   }
+
+  &:-webkit-autofill {
+    -webkit-box-shadow:0 0 0 50px var(--color-s2) inset;
+    -webkit-text-fill-color: var(--color-t1);
+  }
 }

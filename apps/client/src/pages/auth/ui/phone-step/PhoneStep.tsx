@@ -6,18 +6,43 @@ import { QrCodeDialog } from "@/pages/auth/ui/qr-code-dialog/QrCodeDialog.tsx";
 import { QrCodeSignIn } from "@/pages/auth/ui/qr-code-sign-in/QrCodeSignIn.tsx";
 import { useIsMobile } from "@/shared/lib/breakpoints.ts";
 import { Card } from "@/shared/ui/Card";
-import type { PhoneFormOutput } from "../../model/phone-form.ts";
+import {
+	PhoneFormErrorCode,
+	type PhoneFormOutput,
+	type PhoneFormSubmitError,
+} from "../../model/phone-form.ts";
 import styles from "./PhoneStep.module.scss";
 
-export const PhoneStep = () => {
-	const [isOpenQrCode, setIsOpenQrCode] = useState<boolean>(false);
+interface PhoneStepProps {
+	onSendOtp: (otpToken: string) => void;
+}
+export const PhoneStep = (props: PhoneStepProps) => {
+	const content = useIntlayer("phone-step");
 	const isMobile = useIsMobile();
 
-	const onSubmitPhoneForm = useCallback((value: PhoneFormOutput) => {
-		console.log(value);
-	}, []);
+	const [isOpenQrCode, setIsOpenQrCode] = useState<boolean>(false);
 
-	const content = useIntlayer("phone-step");
+	const onSubmitPhoneForm = useCallback(
+		async (value: PhoneFormOutput): Promise<PhoneFormSubmitError | null> => {
+			console.log(value);
+
+			//fake api
+			await new Promise((resolve) => setTimeout(resolve, 10000));
+
+			const error = null;
+			const otpToken = "fake";
+
+			switch (error) {
+				case null: {
+					props.onSendOtp(otpToken);
+					return null;
+				}
+				default:
+					return { field: "root", code: PhoneFormErrorCode.UNKNOWN };
+			}
+		},
+		[props.onSendOtp],
+	);
 
 	return (
 		<div className={styles["phone-step__content"]}>
